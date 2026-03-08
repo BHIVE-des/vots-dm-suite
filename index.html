@@ -1,0 +1,3037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Valley of the Sun II — DM Suite</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+:root{--bg:#06080E;--bg1:#0A0D18;--bg2:#0E1220;--bg3:#131826;--bd:#192030;--bd2:#22304A;--bd3:#2E4060;--tr:#C4622D;--tr2:#E07840;--gd:#C99A2E;--gd2:#E0B840;--tl:#1A9090;--tl2:#22AEAE;--tx:#E0D5C0;--tx2:#9A8E78;--tx3:#5A5245;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body,#root{min-height:100%;background:#06080E;}
+body{color:var(--tx);font-family:'Barlow Condensed',sans-serif;min-height:100vh;overflow-x:hidden;}
+@keyframes twinkle{0%,100%{opacity:.08}50%{opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes veilPass{0%{opacity:0;transform:translateY(105%)}15%{opacity:.4}85%{opacity:.4}100%{opacity:0;transform:translateY(-105%)}}
+@keyframes turnPulse{0%,100%{box-shadow:0 0 0 0 rgba(196,98,45,0)}50%{box-shadow:0 0 0 3px rgba(196,98,45,.3)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:#fff;}
+.veil{position:fixed;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(26,144,144,.35),rgba(201,154,46,.18),transparent);pointer-events:none;z-index:0;animation:veilPass var(--dur) ease-in-out infinite;animation-delay:var(--del);}
+.wrap{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;}
+.geo{height:5px;opacity:.65;background:repeating-linear-gradient(90deg,var(--tr) 0,var(--tr) 8px,transparent 8px,transparent 12px,var(--gd) 12px,var(--gd) 16px,transparent 16px,transparent 24px,var(--tl) 24px,var(--tl) 28px,transparent 28px,transparent 36px);}
+.hdr{padding:22px 20px 14px;text-align:center;position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(196,98,45,.07) 0%,transparent 100%);}
+.sky-wrap{position:absolute;bottom:0;left:0;right:0;height:68px;opacity:.065;color:var(--tx);pointer-events:none;}
+.eyebrow{font-size:9px;font-weight:600;letter-spacing:5px;text-transform:uppercase;color:var(--tr);margin-bottom:4px;position:relative;z-index:1;}
+.h-title{font-family:'Cinzel Decorative',serif;font-size:clamp(17px,5vw,32px);font-weight:700;background:linear-gradient(180deg,#F4E090 0%,#C99A2E 55%,#8A6810 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;position:relative;z-index:1;}
+.h-sub{font-size:9px;font-weight:300;letter-spacing:4px;text-transform:uppercase;color:var(--tx2);margin-top:4px;position:relative;z-index:1;}
+.tabs{display:flex;padding:0 18px;border-bottom:1px solid var(--bd2);background:var(--bg1);overflow-x:auto;flex-shrink:0;}
+.tabs::-webkit-scrollbar{height:0;}
+.tab{padding:9px 16px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;position:relative;bottom:-1px;white-space:nowrap;flex-shrink:0;}
+.tab:hover{color:var(--tx2);}.tab.on{color:var(--gd);border-bottom-color:var(--gd);}
+.main{flex:1;padding:18px 20px 36px;background:var(--bg1);}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.sl{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--tx3);display:flex;align-items:center;gap:6px;}
+.sl::before{content:'';display:inline-block;width:6px;height:6px;background:var(--tr);transform:rotate(45deg);}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border:1px solid;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .12s;background:transparent;border-radius:2px;}
+.bt{border-color:var(--tr);color:var(--tr);}.bt:hover{background:var(--tr);color:#fff;}
+.bg2{border-color:var(--gd);color:var(--gd);}.bg2:hover{background:var(--gd);color:#000;}
+.bl{border-color:var(--tl);color:var(--tl);}.bl:hover{background:var(--tl);color:#fff;}
+.bx{border-color:var(--bd2);color:var(--tx2);padding:4px 8px;font-size:9px;}.bx:hover{border-color:var(--tx2);color:var(--tx);}
+.bd2{border-color:#CC3A3A;color:#CC3A3A;}.bd2:hover{background:#CC3A3A;color:#fff;}
+.bi{width:23px;height:23px;padding:0;display:flex;align-items:center;justify-content:center;font-size:11px;border-radius:2px;}
+.btns-row{display:flex;gap:5px;flex-wrap:wrap;}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:11px;}
+.card{background:var(--bg2);border:1px solid var(--bd);padding:12px;position:relative;transition:border-color .15s;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));}
+.card:hover{border-color:var(--bd2);}.card.dn{border-color:#7A1A1A;}
+.cardt{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.cname{font-size:17px;font-weight:700;color:var(--tx);line-height:1;}
+.cmeta{font-size:9px;color:var(--tx2);margin-top:2px;letter-spacing:.3px;}
+.lvl{background:var(--bg3);border:1px solid var(--bd2);color:var(--gd);font-size:8px;font-weight:700;letter-spacing:1px;padding:2px 6px;}
+.hpr{margin-bottom:8px;}
+.hpt{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;}
+.hplbl{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);}
+.hpn{font-size:12px;font-weight:700;color:var(--tx);}
+.hpn .mx{font-size:9px;font-weight:400;color:var(--tx3);}
+.hptrack{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:5px;}
+.hpfill{height:100%;border-radius:2px;transition:width .3s,background .3s;}
+.hpc{display:flex;gap:4px;align-items:center;}
+.ain{width:40px;background:var(--bg3);border:1px solid var(--bd2);color:var(--tx);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;text-align:center;padding:2px 3px;border-radius:2px;outline:none;}
+.ain:focus{border-color:var(--tr);}
+.sr{display:flex;gap:4px;margin-bottom:8px;}
+.sc{display:flex;flex-direction:column;align-items:center;background:var(--bg3);border:1px solid var(--bd);padding:4px 8px;flex:1;}
+.slbl{font-size:7px;font-weight:700;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-bottom:1px;}
+.sv{font-size:14px;font-weight:700;color:var(--tx);line-height:1;}
+.csec{margin-bottom:6px;}
+.cslbl{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:4px;}
+.chips{display:flex;flex-wrap:wrap;gap:2px;}
+.chip{font-size:7px;font-weight:700;padding:2px 5px;border-radius:2px;border:1px solid var(--bd);color:var(--tx3);cursor:pointer;transition:all .1s;background:var(--bg3);}
+.chip.ac{background:rgba(80,80,80,.15);}
+.cpanel{background:var(--bg3);border:1px solid var(--bd2);padding:7px;margin-top:5px;display:flex;flex-wrap:wrap;gap:3px;}
+.rssec{border-top:1px solid var(--bd);padding-top:6px;margin-top:6px;}
+.rsrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+.rsn{font-size:9px;color:var(--tx2);flex:1;}
+.pips{display:flex;gap:2px;flex-wrap:wrap;}
+.pip{width:10px;height:10px;border:1px solid var(--tl);transform:rotate(45deg);cursor:pointer;transition:background .1s;flex-shrink:0;}
+.pip.on{background:var(--tl);}
+.cfoot{display:flex;gap:3px;margin-top:8px;padding-top:7px;border-top:1px solid var(--bd);}
+.addcard{border:1px dashed var(--bd2);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;cursor:pointer;transition:all .15s;min-height:140px;color:var(--tx3);width:100%;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));}
+.addcard:hover{border-color:var(--tr);color:var(--tr);}
+.cbhdr{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-bottom:16px;}
+.rbox{background:var(--bg2);border:1px solid var(--bd2);padding:6px 13px;text-align:center;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));}
+.rlbl{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);}
+.rnum{font-family:'Cinzel Decorative',serif;font-size:24px;color:var(--gd);line-height:1.1;}
+.ilist{display:flex;flex-direction:column;gap:3px;}
+.irow{display:grid;grid-template-columns:36px 1fr 130px 38px auto;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--bd);padding:7px 9px;transition:all .15s;}
+.irow.cur{border-color:var(--tr);background:rgba(196,98,45,.07);animation:turnPulse 2s ease-in-out infinite;}
+.irow.dead{opacity:.28;filter:grayscale(1);}
+.inum-wrap{text-align:center;}
+.inum{font-family:'Cinzel Decorative',serif;font-size:15px;color:var(--gd);cursor:pointer;display:block;line-height:1;user-select:none;}
+.irow.cur .inum{color:var(--tr2);}
+.inum-in{width:34px;background:var(--bg3);border:1px solid var(--tr);color:var(--tr2);font-family:'Cinzel Decorative',serif;font-size:13px;text-align:center;padding:1px 2px;border-radius:2px;outline:none;}
+.inb{min-width:0;}
+.iname{font-size:13px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ibadge{font-size:7px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);}
+.ibadge.pc{color:var(--tl2);}
+.iconds{display:flex;flex-wrap:wrap;gap:2px;margin-top:2px;}
+.ichip{font-size:7px;font-weight:700;padding:1px 4px;border-radius:2px;}
+.chp{display:flex;flex-direction:column;gap:2px;}
+.chpbar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.chpc{display:flex;align-items:center;gap:2px;}
+.chpt{font-size:9px;font-weight:600;color:var(--tx2);white-space:nowrap;}
+.chin{width:30px;background:var(--bg3);border:1px solid var(--bd);color:var(--tx);font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;text-align:center;padding:2px;border-radius:2px;outline:none;}
+.chin:focus{border-color:var(--tr);}
+.cac{text-align:center;}
+.cav{display:block;font-size:13px;font-weight:700;color:var(--tx);line-height:1;}
+.cal{font-size:7px;color:var(--tx3);letter-spacing:1px;}
+.cas{display:flex;gap:2px;}
+.ipanel{background:var(--bg3);border:1px solid var(--bd2);padding:6px;margin-top:3px;display:flex;flex-wrap:wrap;gap:2px;}
+.mbg{position:fixed;inset:0;background:rgba(6,8,14,.9);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px);animation:fadeIn .12s ease;}
+.modal{background:var(--bg2);border:1px solid var(--bd2);padding:18px;width:100%;max-width:440px;max-height:82vh;overflow-y:auto;animation:slideUp .15s ease;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));}
+.mtitle{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gd);margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;}
+.fg1{grid-template-columns:1fr;}
+.fgg{display:flex;flex-direction:column;gap:3px;}
+.fl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);}
+.fi{background:var(--bg3);border:1px solid var(--bd);color:var(--tx);font-family:'Barlow Condensed',sans-serif;font-size:13px;padding:6px 7px;border-radius:2px;outline:none;width:100%;}
+.fi:focus{border-color:var(--tr);}.fi::placeholder{color:var(--tx3);}
+.fsel{background:var(--bg3);border:1px solid var(--bd);color:var(--tx);font-family:'Barlow Condensed',sans-serif;font-size:13px;padding:6px 7px;border-radius:2px;outline:none;width:100%;cursor:pointer;}
+.fta{background:var(--bg3);border:1px solid var(--bd);color:var(--tx);font-family:'Barlow Condensed',sans-serif;font-size:12px;padding:7px;border-radius:2px;outline:none;width:100%;resize:vertical;min-height:70px;line-height:1.5;}
+.fta:focus{border-color:var(--tr);}
+.mfoot{display:flex;gap:6px;justify-content:flex-end;margin-top:14px;padding-top:11px;border-top:1px solid var(--bd);}
+.rer{display:flex;align-items:center;gap:5px;padding:4px 5px;background:var(--bg3);border:1px solid var(--bd);border-radius:2px;margin-bottom:3px;}
+.npc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:11px;}
+.npc-card{background:var(--bg2);border:1px solid var(--bd);padding:12px;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));transition:border-color .15s;}
+.npc-card:hover{border-color:var(--bd2);}
+.npc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;}
+.npc-name{font-size:16px;font-weight:700;color:var(--tx);}
+.nstat{display:inline-flex;align-items:center;font-size:7px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.nrel{font-size:9px;color:var(--tl2);margin-bottom:5px;font-style:italic;}
+.nliner{font-size:11px;color:var(--tx2);line-height:1.5;margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid var(--bd);}
+.nnotes-toggle{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);cursor:pointer;background:none;border:none;padding:0;font-family:'Barlow Condensed',sans-serif;}
+.nnotes-toggle:hover{color:var(--tx2);}
+.nnotes{font-size:10px;color:var(--tx2);line-height:1.6;margin-top:7px;white-space:pre-wrap;}
+.map-container{border:1px solid var(--bd2);overflow:hidden;margin-bottom:16px;position:relative;height:300px;}
+.map-label{position:absolute;top:8px;left:10px;z-index:1000;background:rgba(6,8,14,.8);padding:3px 8px;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tr);}
+.loc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:9px;}
+.loc-card{background:var(--bg2);border:1px solid var(--bd);padding:11px;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));transition:border-color .15s;}
+.loc-card:hover{border-color:var(--bd2);}
+.loc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;}
+.loc-name{font-size:14px;font-weight:700;color:var(--tx);}
+.lstat{display:inline-flex;align-items:center;font-size:7px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.ldistrict{font-size:8px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.ldesc{font-size:10px;color:var(--tx2);line-height:1.5;}
+.rg-list{display:flex;flex-direction:column;gap:8px;}
+.rg-section{background:var(--bg2);border:1px solid var(--bd);overflow:hidden;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));}
+.rg-header{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;background:var(--bg3);user-select:none;}
+.rg-arrow{font-size:9px;color:var(--tx3);transition:transform .2s;flex-shrink:0;}
+.rg-arrow.open{transform:rotate(90deg);}
+.rg-title{flex:1;font-size:13px;font-weight:700;color:var(--gd);}
+.rg-body{padding:10px 12px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--bd);}
+.rr{display:flex;align-items:center;gap:8px;}
+.rr-name{flex:1;font-size:11px;color:var(--tx);min-width:0;}
+.rr-pips{display:flex;gap:3px;flex-wrap:wrap;align-items:center;}
+.rpip{width:11px;height:11px;border:1px solid var(--gd);transform:rotate(45deg);cursor:pointer;transition:background .1s;flex-shrink:0;}
+.rpip.on{background:var(--gd);}
+.rg-foot{padding:0 12px 10px;display:flex;gap:5px;}
+.notes-wrap{display:grid;grid-template-columns:190px 1fr;min-height:400px;border:1px solid var(--bd);overflow:hidden;}
+.notes-sidebar{background:var(--bg2);border-right:1px solid var(--bd);display:flex;flex-direction:column;}
+.notes-sidebar-hdr{padding:8px 10px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.notes-sidebar-title{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);}
+.notes-list{flex:1;overflow-y:auto;}
+.note-item{padding:9px 10px 9px 12px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .1s;font-size:11px;color:var(--tx2);border-left:2px solid transparent;}
+.note-item:hover{background:var(--bg3);}.note-item.on{background:var(--bg3);color:var(--gd);border-left-color:var(--gd);}
+.note-date{font-size:8px;color:var(--tx3);margin-top:1px;}
+.notes-editor{display:flex;flex-direction:column;background:var(--bg1);}
+.notes-editor-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:var(--tx3);gap:8px;padding:20px;}
+.note-title-bar{padding:9px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--bg2);}
+.note-title-in{flex:1;background:transparent;border:none;color:var(--gd);font-family:'Cinzel Decorative',serif;font-size:13px;outline:none;min-width:0;}
+.note-title-in::placeholder{color:var(--tx3);}
+.note-ta{flex:1;background:transparent;border:none;color:var(--tx);font-family:'Barlow Condensed',sans-serif;font-size:13px;line-height:1.8;padding:16px 18px;resize:none;outline:none;min-height:300px;}
+.note-ta::placeholder{color:var(--tx3);}
+.note-footer{padding:6px 14px;border-top:1px solid var(--bd);font-size:8px;color:var(--tx3);letter-spacing:1px;background:var(--bg2);display:flex;justify-content:space-between;}
+.empty{text-align:center;padding:36px 14px;color:var(--tx3);}
+.ei{font-size:26px;opacity:.3;margin-bottom:8px;}
+.et{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tx2);margin-bottom:4px;}
+.eb{font-size:10px;font-weight:300;max-width:230px;margin:0 auto 12px;line-height:1.5;}
+.login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative;z-index:1;}
+.login-box{background:var(--bg2);border:1px solid var(--bd2);padding:28px 24px;width:100%;max-width:360px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));}
+.login-title{font-family:'Cinzel Decorative',serif;font-size:22px;background:linear-gradient(180deg,#F4E090 0%,#C99A2E 55%,#8A6810 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;text-align:center;}
+.login-sub{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--tx3);text-align:center;margin-bottom:24px;}
+.login-err{font-size:10px;color:#CC3A3A;text-align:center;margin-top:8px;min-height:16px;}
+.spinner{width:32px;height:32px;border:2px solid var(--bd2);border-top-color:var(--gd);border-radius:50%;animation:spin 1s linear infinite;}
+.sync{position:fixed;bottom:14px;right:14px;z-index:100;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);background:var(--bg2);border:1px solid var(--bd);padding:4px 9px;border-radius:2px;transition:all .3s;}
+.sync.active{color:var(--tl2);border-color:var(--tl);}
+.leaflet-tile-pane{filter:brightness(.95) saturate(.65) sepia(.15) hue-rotate(-5deg);}
+.leaflet-container{background:#d4cfc8;}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0E1220;border:1px solid #22304A;color:#E0D5C0;box-shadow:none;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:var(--tr);}
+@media(max-width:600px){
+  .irow{grid-template-columns:32px 1fr 100px auto;}
+  .cac{display:none;}
+  .pgrid,.npc-grid,.loc-grid{grid-template-columns:1fr;}
+  .notes-wrap{grid-template-columns:1fr;grid-template-rows:auto 1fr;}
+  .notes-sidebar{max-height:160px;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Dependencies -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<!-- CONFIGURE YOUR SUPABASE CREDENTIALS HERE -->
+<script>
+  window.SUPABASE_URL = "https://zdskupqfbudsotkcmoan.supabase.co";
+  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpkc2t1cHFmYnVkc290a2Ntb2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NzY3NDQsImV4cCI6MjA4ODE1Mjc0NH0.YGTNjlwWzw-ZFeeI2acQ6esBC8BIBlQbMijvfnT27K8";
+</script>
+
+<!-- Pre-compiled app (no Babel needed) -->
+<script>
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+// Valley of the Sun II — DM Suite
+// Pre-compiled source
+
+const {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  Fragment
+} = React;
+const {
+  createClient
+} = supabase;
+
+// ── Config ────────────────────────────────────────────────────────────────────
+const SUPABASE_URL = window.SUPABASE_URL || "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "YOUR_SUPABASE_ANON_KEY";
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const CONDITIONS = ["Blinded", "Charmed", "Deafened", "Exhaustion", "Frightened", "Grappled", "Incapacitated", "Invisible", "Paralyzed", "Petrified", "Poisoned", "Prone", "Restrained", "Stunned", "Unconscious"];
+const CC = {
+  Blinded: "#94a3b8",
+  Charmed: "#e879f9",
+  Deafened: "#a78a6a",
+  Exhaustion: "#f97316",
+  Frightened: "#a855f7",
+  Grappled: "#84cc16",
+  Incapacitated: "#ef4444",
+  Invisible: "#38bdf8",
+  Paralyzed: "#fbbf24",
+  Petrified: "#a8a29e",
+  Poisoned: "#4ade80",
+  Prone: "#fb923c",
+  Restrained: "#f87171",
+  Stunned: "#c084fc",
+  Unconscious: "#dc2626"
+};
+const NPC_STATUSES = ["Alive", "Dead", "Missing", "Unknown", "Friendly", "Hostile"];
+const NSC = {
+  Alive: "#2A8A4A",
+  Dead: "#CC3A3A",
+  Missing: "#C99A2E",
+  Unknown: "#706860",
+  Friendly: "#1A9090",
+  Hostile: "#C4622D"
+};
+const LOC_STATUSES = ["Safe", "Hostile", "Unknown", "Neutral", "Explored", "Rumored"];
+const LSC = {
+  Safe: "#2A8A4A",
+  Hostile: "#CC3A3A",
+  Unknown: "#706860",
+  Neutral: "#1A9090",
+  Explored: "#C99A2E",
+  Rumored: "#8A5080"
+};
+const uid = () => Math.random().toString(36).slice(2, 9);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const hpPct = (c, m) => m > 0 ? clamp(c / m, 0, 1) : 0;
+const hpCol = p => p > .66 ? "#2A8A4A" : p > .33 ? "#C99A2E" : p > 0 ? "#CC3A3A" : "#3A0A0A";
+const PRESETS = [{
+  id: "desert-night",
+  label: "Desert Night",
+  emoji: "🌵",
+  desc: "Phoenix urban fantasy — the original Valley of the Sun palette",
+  color_primary: "#C4622D",
+  color_secondary: "#C99A2E",
+  color_tertiary: "#1A9090",
+  color_bg: "#06080E",
+  color_tx: "#E0D5C0",
+  bg1: "#0A0D18",
+  bg2: "#0E1220",
+  bg3: "#131826",
+  bd: "#192030",
+  bd2: "#22304A",
+  tx2: "#9A8E78",
+  tx3: "#5A5245"
+}, {
+  id: "fae-forest",
+  label: "Fae Forest",
+  emoji: "🌿",
+  desc: "Mossy greens, violet mushroom glows, ancient woodland mystery",
+  color_primary: "#6B9E3A",
+  color_secondary: "#9B6BC4",
+  color_tertiary: "#3A9E72",
+  color_bg: "#040A06",
+  color_tx: "#D4E8C2",
+  bg1: "#070F09",
+  bg2: "#0A1510",
+  bg3: "#0D1C13",
+  bd: "#142A18",
+  bd2: "#1E3E22",
+  tx2: "#7A9E68",
+  tx3: "#3A5A3E"
+}, {
+  id: "deep-ocean",
+  label: "Deep Ocean",
+  emoji: "🌊",
+  desc: "Abyssal navy, bioluminescent teal, pressure and ancient darkness",
+  color_primary: "#1A7ACC",
+  color_secondary: "#0EB8A8",
+  color_tertiary: "#6A4EC4",
+  color_bg: "#020810",
+  color_tx: "#C0D8E8",
+  bg1: "#040C18",
+  bg2: "#071020",
+  bg3: "#0A1428",
+  bd: "#0E1E38",
+  bd2: "#142C52",
+  tx2: "#5A8AA8",
+  tx3: "#2A4A62"
+}, {
+  id: "frozen-wastes",
+  label: "Frozen Wastes",
+  emoji: "❄️",
+  desc: "Glacier slate, pale ice blue, the silence before the storm",
+  color_primary: "#7AAEC4",
+  color_secondary: "#A8CCD8",
+  color_tertiary: "#4A8EA8",
+  color_bg: "#060810",
+  color_tx: "#D8E8F0",
+  bg1: "#090C16",
+  bg2: "#0C1020",
+  bg3: "#101428",
+  bd: "#182030",
+  bd2: "#203040",
+  tx2: "#6A8898",
+  tx3: "#344858"
+}, {
+  id: "blood-moon",
+  label: "Blood Moon",
+  emoji: "🩸",
+  desc: "Near-black reds, deep crimson, the kind of night things go wrong",
+  color_primary: "#CC2A2A",
+  color_secondary: "#8A1A6A",
+  color_tertiary: "#CC6A1A",
+  color_bg: "#080406",
+  color_tx: "#E8C8C8",
+  bg1: "#100608",
+  bg2: "#180A0C",
+  bg3: "#1E0E10",
+  bd: "#2E1216",
+  bd2: "#421820",
+  tx2: "#9A6868",
+  tx3: "#5A3838"
+}, {
+  id: "urban-neon",
+  label: "Urban Neon",
+  emoji: "🌆",
+  desc: "Dark concrete, electric orange, cyan — a city that never sleeps",
+  color_primary: "#E05A10",
+  color_secondary: "#00C8C8",
+  color_tertiary: "#C020C0",
+  color_bg: "#050506",
+  color_tx: "#E8E0D8",
+  bg1: "#080808",
+  bg2: "#0C0C0E",
+  bg3: "#101012",
+  bd: "#1A1A1E",
+  bd2: "#242428",
+  tx2: "#888880",
+  tx3: "#484844"
+}];
+const DEFAULT_THEME = PRESETS[0];
+function applyTheme(t) {
+  const r = document.documentElement.style;
+  r.setProperty("--tr", t.color_primary);
+  r.setProperty("--tr2", lighten(t.color_primary, 20));
+  r.setProperty("--gd", t.color_secondary);
+  r.setProperty("--gd2", lighten(t.color_secondary, 20));
+  r.setProperty("--tl", t.color_tertiary);
+  r.setProperty("--tl2", lighten(t.color_tertiary, 20));
+  r.setProperty("--bg", t.color_bg);
+  r.setProperty("--bg1", t.bg1 || shiftBg(t.color_bg, 4));
+  r.setProperty("--bg2", t.bg2 || shiftBg(t.color_bg, 8));
+  r.setProperty("--bg3", t.bg3 || shiftBg(t.color_bg, 12));
+  r.setProperty("--bd", t.bd || shiftBg(t.color_bg, 18));
+  r.setProperty("--bd2", t.bd2 || shiftBg(t.color_bg, 28));
+  r.setProperty("--tx", t.color_tx);
+  r.setProperty("--tx2", t.tx2 || "#9A8E78");
+  r.setProperty("--tx3", t.tx3 || "#5A5245");
+}
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1, 3), 16),
+    g = parseInt(hex.slice(3, 5), 16),
+    b = parseInt(hex.slice(5, 7), 16);
+  return [r, g, b];
+}
+function rgbToHex(r, g, b) {
+  return "#" + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
+}
+function lighten(hex, amt) {
+  const [r, g, b] = hexToRgb(hex);
+  return rgbToHex(r + amt, g + amt, b + amt);
+}
+function shiftBg(hex, amt) {
+  const [r, g, b] = hexToRgb(hex);
+  return rgbToHex(r + amt, g + amt, b + amt);
+}
+const STARS = Array.from({
+  length: 80
+}, (_, i) => ({
+  id: i,
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  s: .5 + Math.random() * 1.6,
+  d: 2 + Math.random() * 5,
+  dl: Math.random() * -8
+}));
+
+// ── Skyline ───────────────────────────────────────────────────────────────────
+function Skyline() {
+  const b = [[0, 28, 38], [42, 48, 22], [68, 36, 28], [100, 60, 18], [122, 42, 24], [150, 72, 16], [170, 88, 20], [194, 64, 18], [216, 105, 26], [246, 80, 14], [264, 118, 26], [294, 92, 10], [308, 110, 22], [334, 85, 16], [354, 65, 24], [382, 76, 18], [404, 55, 30], [438, 40, 20], [462, 44, 26], [492, 30, 34], [530, 36, 24], [558, 50, 26], [588, 40, 18], [610, 30, 28], [642, 36, 24], [670, 44, 20], [694, 30, 32], [730, 36, 22], [756, 24, 46], [806, 28, 24], [834, 18, 38], [876, 24, 28], [908, 16, 44], [956, 20, 32], [992, 16, 50], [1046, 22, 34], [1084, 16, 48], [1136, 24, 28], [1168, 14, 32]];
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 1200 130",
+    xmlns: "http://www.w3.org/2000/svg",
+    preserveAspectRatio: "xMidYMax meet",
+    style: {
+      width: "100%",
+      height: "100%"
+    }
+  }, b.map((_ref, i) => {
+    let [x, h, w] = _ref;
+    return /*#__PURE__*/React.createElement("rect", {
+      key: i,
+      x: x,
+      y: 130 - h,
+      width: w,
+      height: h,
+      fill: "currentColor"
+    });
+  }));
+}
+
+// ── Leaflet Map ───────────────────────────────────────────────────────────────
+function PhoenixMap(_ref2) {
+  let {
+    locations,
+    placingPin,
+    onMapClick
+  } = _ref2;
+  const ref = useRef(null);
+  const mapRef = useRef(null);
+  const markersRef = useRef({});
+  const previewRef = useRef(null);
+  useEffect(() => {
+    if (mapRef.current) return;
+    mapRef.current = L.map(ref.current, {
+      zoomControl: true,
+      attributionControl: false
+    }).setView([33.4484, -112.0740], 11);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      subdomains: 'abcd'
+    }).addTo(mapRef.current);
+  }, []);
+
+  // Update cursor and click handler when placingPin changes
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const m = mapRef.current;
+    const container = m.getContainer();
+    container.style.cursor = placingPin ? "crosshair" : "";
+    const handler = e => {
+      if (onMapClick) onMapClick(e.latlng);
+    };
+    if (placingPin) {
+      m.on("click", handler);
+    } else {
+      m.off("click", handler);
+    }
+    return () => m.off("click", handler);
+  }, [placingPin, onMapClick]);
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const m = mapRef.current;
+    const ids = new Set(locations.map(l => l.id));
+    Object.keys(markersRef.current).forEach(id => {
+      if (!ids.has(id)) {
+        markersRef.current[id].remove();
+        delete markersRef.current[id];
+      }
+    });
+    locations.forEach(loc => {
+      if (!loc.lat || !loc.lng) return;
+      const sc = LSC[loc.status] || "#706860";
+      const icon = L.divIcon({
+        className: '',
+        html: "<div style=\"width:12px;height:12px;background:".concat(sc, ";border:2px solid ").concat(sc, "80;transform:rotate(45deg);box-shadow:0 0 6px ").concat(sc, "60;\"></div>"),
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+      });
+      if (markersRef.current[loc.id]) {
+        markersRef.current[loc.id].setLatLng([+loc.lat, +loc.lng]);
+      } else {
+        const mk = L.marker([+loc.lat, +loc.lng], {
+          icon
+        }).addTo(m);
+        mk.bindPopup("<div style=\"font-size:12px;color:#E0D5C0;padding:4px 6px;\">".concat(loc.name, "<br/><span style=\"font-size:10px;color:#9A8E78;\">").concat(loc.district || '', "</span></div>"));
+        markersRef.current[loc.id] = mk;
+      }
+    });
+  }, [locations]);
+  return /*#__PURE__*/React.createElement("div", {
+    ref: ref,
+    style: {
+      width: "100%",
+      height: "100%"
+    }
+  });
+}
+
+// ── Modal Shell ───────────────────────────────────────────────────────────────
+function ModalShell(_ref3) {
+  let {
+    onClose,
+    children
+  } = _ref3;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mbg",
+    onClick: e => {
+      if (e.target === e.currentTarget) onClose();
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal"
+  }, children));
+}
+
+// ── Character Modal ───────────────────────────────────────────────────────────
+function CharModal(_ref4) {
+  let {
+    form,
+    setForm,
+    onSave,
+    onClose
+  } = _ref4;
+  const f = (k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+    [k]: v
+  }));
+  const addRes = () => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+    resources: [...(p.resources || []), {
+      id: uid(),
+      name: "",
+      max: 3,
+      current: 0
+    }]
+  }));
+  const removeRes = id => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+    resources: p.resources.filter(r => r.id !== id)
+  }));
+  const upRes = (id, k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+    resources: p.resources.map(r => r.id === id ? _objectSpread(_objectSpread({}, r), {}, {
+      [k]: v
+    }) : r)
+  }));
+  const valid = (form.name || "").trim().length > 0;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mtitle"
+  }, /*#__PURE__*/React.createElement("span", null, form.editId ? "✦ Edit Character" : "✦ New Character"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bx bi",
+    onClick: onClose
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    className: "fg fg1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Character Name"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    placeholder: "Name...",
+    value: form.name || "",
+    onChange: e => f("name", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Class"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    placeholder: "Fighter, Wizard...",
+    value: form.cls || "",
+    onChange: e => f("cls", e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Level"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "number",
+    min: "1",
+    max: "20",
+    value: form.level || "",
+    onChange: e => f("level", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Max HP"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "number",
+    min: "1",
+    value: form.maxHp || "",
+    onChange: e => f("maxHp", e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Armor Class"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "number",
+    min: "1",
+    value: form.ac || "",
+    onChange: e => f("ac", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 7
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fl"
+  }, "Custom Resources"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: addRes
+  }, "+ Add")), (form.resources || []).map(r => /*#__PURE__*/React.createElement("div", {
+    className: "rer",
+    key: r.id
+  }, /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    style: {
+      flex: 1,
+      minWidth: 0
+    },
+    placeholder: "Resource name...",
+    value: r.name,
+    onChange: e => upRes(r.id, "name", e.target.value)
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "fl",
+    style: {
+      whiteSpace: "nowrap",
+      marginLeft: 4
+    }
+  }, "Max:"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "number",
+    min: "1",
+    max: "20",
+    style: {
+      width: 44
+    },
+    value: r.max,
+    onChange: e => upRes(r.id, "max", parseInt(e.target.value) || 1)
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "btn bd2 bi",
+    style: {
+      flexShrink: 0
+    },
+    onClick: () => removeRes(r.id)
+  }, "\u2715")))), /*#__PURE__*/React.createElement("div", {
+    className: "mfoot"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: onClose
+  }, "Cancel"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: onSave,
+    disabled: !valid,
+    style: {
+      opacity: valid ? 1 : .45
+    }
+  }, form.editId ? "Save Changes" : "Add Character")));
+}
+
+// ── Combat Modal ──────────────────────────────────────────────────────────────
+function CombatModal(_ref5) {
+  let {
+    form,
+    setForm,
+    onSave,
+    onClose
+  } = _ref5;
+  const f = (k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+    [k]: v
+  }));
+  const valid = (form.name || "").trim().length > 0;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mtitle"
+  }, /*#__PURE__*/React.createElement("span", null, "\u2726 Add Combatant"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bx bi",
+    onClick: onClose
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    className: "fg fg1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Name"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    placeholder: "Combatant name...",
+    value: form.name || "",
+    onChange: e => f("name", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Initiative"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 5
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "number",
+    placeholder: "0",
+    value: form.initiative || "",
+    onChange: e => f("initiative", e.target.value),
+    style: {
+      flex: 1
+    }
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "btn bl",
+    onClick: () => f("initiative", Math.floor(Math.random() * 20) + 1)
+  }, "\uD83C\uDFB2"))), /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Type"), /*#__PURE__*/React.createElement("select", {
+    className: "fsel",
+    value: form.isPlayer || "false",
+    onChange: e => f("isPlayer", e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "false"
+  }, "NPC / Monster"), /*#__PURE__*/React.createElement("option", {
+    value: "true"
+  }, "Player Character")))), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Max HP"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "number",
+    min: "1",
+    value: form.maxHp || "",
+    onChange: e => f("maxHp", e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Armor Class"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "number",
+    min: "1",
+    value: form.ac || "",
+    onChange: e => f("ac", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "mfoot"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: onClose
+  }, "Cancel"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: onSave,
+    disabled: !valid,
+    style: {
+      opacity: valid ? 1 : .45
+    }
+  }, "Add to Combat")));
+}
+
+// ── NPC Modal ─────────────────────────────────────────────────────────────────
+function NPCModal(_ref6) {
+  let {
+    form,
+    setForm,
+    onSave,
+    onClose
+  } = _ref6;
+  const f = (k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+    [k]: v
+  }));
+  const valid = (form.name || "").trim().length > 0;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mtitle"
+  }, /*#__PURE__*/React.createElement("span", null, form.editId ? "✦ Edit NPC" : "✦ New NPC"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bx bi",
+    onClick: onClose
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    className: "fg fg1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Name"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    placeholder: "Character name...",
+    value: form.name || "",
+    onChange: e => f("name", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Status"), /*#__PURE__*/React.createElement("select", {
+    className: "fsel",
+    value: form.status || "Unknown",
+    onChange: e => f("status", e.target.value)
+  }, NPC_STATUSES.map(s => /*#__PURE__*/React.createElement("option", {
+    key: s
+  }, s)))), /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Relationship"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    placeholder: "Ally, Merchant...",
+    value: form.relationship || "",
+    onChange: e => f("relationship", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "fg fg1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "One-Liner"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    placeholder: "Brief descriptor...",
+    value: form.oneLiner || "",
+    onChange: e => f("oneLiner", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "fg fg1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Notes"), /*#__PURE__*/React.createElement("textarea", {
+    className: "fta",
+    placeholder: "DM notes, secrets, plot hooks...",
+    value: form.notes || "",
+    onChange: e => f("notes", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      padding: "8px 10px",
+      background: form.secret ? "rgba(196,98,45,.08)" : "var(--bg3)",
+      border: "1px solid " + (form.secret ? "var(--tr)" : "var(--bd)"),
+      borderRadius: 2,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      cursor: "pointer",
+      transition: "all .15s"
+    },
+    onClick: () => f("secret", !form.secret)
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      fontWeight: 700,
+      letterSpacing: 1.5,
+      textTransform: "uppercase",
+      color: form.secret ? "var(--tr)" : "var(--tx3)",
+      marginBottom: 1
+    }
+  }, "\uD83D\uDD12 Secret NPC"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "var(--tx3)"
+    }
+  }, form.secret ? "Hidden from players — DM passphrase required to view" : "Visible to everyone with app access")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 18,
+      height: 18,
+      border: "2px solid " + (form.secret ? "var(--tr)" : "var(--bd2)"),
+      borderRadius: 2,
+      background: form.secret ? "var(--tr)" : "transparent",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+      transition: "all .15s"
+    }
+  }, form.secret && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#fff",
+      fontSize: 10,
+      lineHeight: 1
+    }
+  }, "\u2713"))), /*#__PURE__*/React.createElement("div", {
+    className: "mfoot"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: onClose
+  }, "Cancel"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: onSave,
+    disabled: !valid,
+    style: {
+      opacity: valid ? 1 : .45
+    }
+  }, form.editId ? "Save Changes" : "Add NPC")));
+}
+
+// ── Location Modal ────────────────────────────────────────────────────────────
+function LocationModal(_ref7) {
+  let {
+    form,
+    setForm,
+    onSave,
+    onClose,
+    onPickOnMap
+  } = _ref7;
+  const f = (k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+    [k]: v
+  }));
+  const valid = (form.name || "").trim().length > 0;
+  const hasPin = form.lat && form.lng;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mtitle"
+  }, /*#__PURE__*/React.createElement("span", null, form.editId ? "✦ Edit Location" : "✦ New Location"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bx bi",
+    onClick: onClose
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    className: "fg fg1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Location Name"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    placeholder: "Name...",
+    value: form.name || "",
+    onChange: e => f("name", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "District / Area"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    placeholder: "Downtown, Tempe...",
+    value: form.district || "",
+    onChange: e => f("district", e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Status"), /*#__PURE__*/React.createElement("select", {
+    className: "fsel",
+    value: form.status || "Unknown",
+    onChange: e => f("status", e.target.value)
+  }, LOC_STATUSES.map(s => /*#__PURE__*/React.createElement("option", {
+    key: s
+  }, s))))), /*#__PURE__*/React.createElement("div", {
+    className: "fg fg1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Description"), /*#__PURE__*/React.createElement("textarea", {
+    className: "fta",
+    placeholder: "What the party knows about this place...",
+    value: form.description || "",
+    onChange: e => f("description", e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 10,
+      padding: "8px 10px",
+      background: "var(--bg3)",
+      border: "1px solid var(--bd)",
+      borderRadius: 2,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      fontWeight: 700,
+      letterSpacing: 1.5,
+      textTransform: "uppercase",
+      color: "var(--tx3)",
+      marginBottom: 2
+    }
+  }, "Map Pin"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: hasPin ? "var(--tl2)" : "var(--tx3)"
+    }
+  }, hasPin ? "".concat((+form.lat).toFixed(4), ", ").concat((+form.lng).toFixed(4)) : "No pin placed — defaults to city center")), /*#__PURE__*/React.createElement("button", {
+    className: "btn bl",
+    style: {
+      flexShrink: 0,
+      fontSize: 9
+    },
+    onClick: onPickOnMap
+  }, "\uD83D\uDCCD Place on Map")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      padding: "8px 10px",
+      background: form.secret ? "rgba(196,98,45,.08)" : "var(--bg3)",
+      border: "1px solid " + (form.secret ? "var(--tr)" : "var(--bd)"),
+      borderRadius: 2,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      cursor: "pointer",
+      transition: "all .15s"
+    },
+    onClick: () => f("secret", !form.secret)
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      fontWeight: 700,
+      letterSpacing: 1.5,
+      textTransform: "uppercase",
+      color: form.secret ? "var(--tr)" : "var(--tx3)",
+      marginBottom: 1
+    }
+  }, "\uD83D\uDD12 Secret Location"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "var(--tx3)"
+    }
+  }, form.secret ? "Hidden from players — DM passphrase required to view" : "Visible to everyone with app access")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 18,
+      height: 18,
+      border: "2px solid " + (form.secret ? "var(--tr)" : "var(--bd2)"),
+      borderRadius: 2,
+      background: form.secret ? "var(--tr)" : "transparent",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+      transition: "all .15s"
+    }
+  }, form.secret && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#fff",
+      fontSize: 10,
+      lineHeight: 1
+    }
+  }, "\u2713"))), /*#__PURE__*/React.createElement("div", {
+    className: "mfoot"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: onClose
+  }, "Cancel"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: onSave,
+    disabled: !valid,
+    style: {
+      opacity: valid ? 1 : .45
+    }
+  }, form.editId ? "Save Changes" : "Add Location")));
+}
+
+// ── Unlock Secrets Modal ─────────────────────────────────────────────────────
+function UnlockModal(_ref8) {
+  let {
+    label,
+    pass,
+    setPass,
+    err,
+    onUnlock,
+    onClose
+  } = _ref8;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mtitle"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDD12 Unlock ", label, " Secrets"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bx bi",
+    onClick: onClose
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 12,
+      fontSize: 11,
+      color: "var(--tx2)",
+      lineHeight: 1.6
+    }
+  }, "These entries are marked secret. Enter the DM passphrase to reveal them for this session."), /*#__PURE__*/React.createElement("div", {
+    className: "fgg",
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "DM Passphrase"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "password",
+    placeholder: "Enter passphrase...",
+    value: pass,
+    onChange: e => setPass(e.target.value),
+    onKeyDown: e => {
+      if (e.key === "Enter") onUnlock();
+    },
+    autoFocus: true
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#CC3A3A",
+      minHeight: 16,
+      marginBottom: 8
+    }
+  }, err), /*#__PURE__*/React.createElement("div", {
+    className: "mfoot"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: onClose
+  }, "Cancel"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: onUnlock
+  }, "Reveal Secrets")));
+}
+
+// ── Login Screen ──────────────────────────────────────────────────────────────
+function LoginScreen(_ref9) {
+  let {
+    onLogin
+  } = _ref9;
+  const [pass, setPass] = useState("");
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+  const tryLogin = async () => {
+    if (!pass.trim()) return;
+    setLoading(true);
+    setErr("");
+    try {
+      const {
+        data,
+        error
+      } = await sb.from("campaign").select("passphrase").eq("id", "main").single();
+      if (error || !data) {
+        setErr("Could not reach database. Check your Supabase URL/key.");
+        setLoading(false);
+        return;
+      }
+      if (data.passphrase === pass.trim()) {
+        onLogin();
+      } else {
+        setErr("Incorrect passphrase.");
+        setLoading(false);
+      }
+    } catch (e) {
+      setErr("Connection error: " + e.message);
+      setLoading(false);
+    }
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "login-screen"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "login-box"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "login-title"
+  }, "Valley of the Sun II"), /*#__PURE__*/React.createElement("div", {
+    className: "login-sub"
+  }, "Phoenix \xB7 Beneath the Veil"), /*#__PURE__*/React.createElement("div", {
+    className: "fgg",
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Passphrase"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "password",
+    placeholder: "Enter passphrase...",
+    value: pass,
+    onChange: e => setPass(e.target.value),
+    onKeyDown: e => {
+      if (e.key === "Enter") tryLogin();
+    }
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    style: {
+      width: "100%",
+      justifyContent: "center",
+      padding: "9px"
+    },
+    onClick: tryLogin,
+    disabled: loading
+  }, loading ? "Checking..." : "Enter the Veil →"), /*#__PURE__*/React.createElement("div", {
+    className: "login-err"
+  }, err)));
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
+function App() {
+  var _groups$find;
+  const [authed, setAuthed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [tab, setTab] = useState("party");
+  const [theme, setTheme] = useState(DEFAULT_THEME);
+  const [party, setParty] = useState([]);
+  const [combatants, setCombatants] = useState([]);
+  const [campaign, setCampaign] = useState({
+    round: 1,
+    current_turn_id: null
+  });
+  const [npcs, setNpcs] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [activeNoteId, setActiveNoteId] = useState(null);
+  const [modal, setModal] = useState(null);
+  const [charForm, setCharForm] = useState({});
+  const [combatForm, setCombatForm] = useState({});
+  const [npcForm, setNpcForm] = useState({});
+  const [locForm, setLocForm] = useState({});
+  const [placingPin, setPlacingPin] = useState(false);
+  const [secretsUnlocked, setSecretsUnlocked] = useState(false);
+  const [unlockModal, setUnlockModal] = useState(null); // 'npcs' | 'locations'
+  const [unlockPass, setUnlockPass] = useState("");
+  const [unlockErr, setUnlockErr] = useState("");
+  const [addResFor, setAddResFor] = useState(null);
+  const [resForm, setResForm] = useState({});
+  const [adjustVals, setAdjustVals] = useState({});
+  const [condPicker, setCondPicker] = useState(null);
+  const [editInitFor, setEditInitFor] = useState(null);
+  const [npcExp, setNpcExp] = useState({});
+  const setAdj = (id, v) => setAdjustVals(a => _objectSpread(_objectSpread({}, a), {}, {
+    [id]: v
+  }));
+
+  // ── Load ──────────────────────────────────────────────────────────────────
+  const loadAll = useCallback(async () => {
+    const [ch, cb, cp, np, lc, rg, rs, nt, th] = await Promise.all([sb.from("characters").select("*").order("sort_order"), sb.from("combatants").select("*").order("sort_order"), sb.from("campaign").select("*").eq("id", "main").single(), sb.from("npcs").select("*").order("sort_order"), sb.from("locations").select("*").order("sort_order"), sb.from("resource_groups").select("*").order("sort_order"), sb.from("resources").select("*").order("sort_order"), sb.from("notes").select("*").order("sort_order"), sb.from("theme").select("*").eq("id", "main").single()]);
+    if (ch.data) setParty(ch.data.map(c => _objectSpread(_objectSpread({}, c), {}, {
+      conditions: c.conditions || [],
+      resources: c.resources || []
+    })));
+    if (cb.data) setCombatants(cb.data.map(c => _objectSpread(_objectSpread({}, c), {}, {
+      conditions: c.conditions || []
+    })));
+    if (cp.data) setCampaign(cp.data);
+    if (np.data) setNpcs(np.data);
+    if (lc.data) setLocations(lc.data);
+    if (rg.data && rs.data) {
+      setGroups(rg.data.map(g => _objectSpread(_objectSpread({}, g), {}, {
+        resources: rs.data.filter(r => r.group_id === g.id)
+      })));
+    }
+    if (nt.data) {
+      setNotes(nt.data);
+      setActiveNoteId(id => {
+        var _nt$data$0$id, _nt$data$;
+        return id || ((_nt$data$0$id = (_nt$data$ = nt.data[0]) === null || _nt$data$ === void 0 ? void 0 : _nt$data$.id) !== null && _nt$data$0$id !== void 0 ? _nt$data$0$id : null);
+      });
+    }
+    if (th.data) {
+      const merged = _objectSpread(_objectSpread({}, DEFAULT_THEME), th.data);
+      setTheme(merged);
+      applyTheme(merged);
+    }
+  }, []);
+  useEffect(() => {
+    if (!authed) return;
+    setLoading(true);
+    loadAll().finally(() => setLoading(false));
+    const channels = ["characters", "combatants", "campaign", "npcs", "locations", "resource_groups", "resources", "notes", "theme"].map(table => sb.channel("rt_".concat(table)).on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table
+    }, () => loadAll()).subscribe());
+    return () => channels.forEach(c => sb.removeChannel(c));
+  }, [authed, loadAll]);
+  const sync = async fn => {
+    setSyncing(true);
+    try {
+      await fn();
+    } finally {
+      setTimeout(() => setSyncing(false), 700);
+    }
+  };
+
+  // ── Party ops ─────────────────────────────────────────────────────────────
+  const saveChar = () => sync(async () => {
+    var _existing$sort_order;
+    const existing = party.find(x => x.id === charForm.editId);
+    const row = {
+      id: charForm.editId || uid(),
+      name: (charForm.name || "").trim() || "Unnamed",
+      class: charForm.cls || "",
+      level: +charForm.level || 1,
+      max_hp: +charForm.maxHp || 10,
+      current_hp: charForm.editId ? Math.min((existing === null || existing === void 0 ? void 0 : existing.current_hp) || 10, +charForm.maxHp || 10) : +charForm.maxHp || 10,
+      ac: +charForm.ac || 10,
+      conditions: (existing === null || existing === void 0 ? void 0 : existing.conditions) || [],
+      resources: (charForm.resources || []).filter(r => r.name.trim()),
+      sort_order: charForm.editId ? (_existing$sort_order = existing === null || existing === void 0 ? void 0 : existing.sort_order) !== null && _existing$sort_order !== void 0 ? _existing$sort_order : 0 : party.length
+    };
+    await sb.from("characters").upsert(row);
+    setModal(null);
+  });
+  const adjustHP = (id, delta, isParty) => sync(async () => {
+    const list = isParty ? party : combatants;
+    const item = list.find(c => c.id === id);
+    if (!item) return;
+    const newHp = clamp((item.current_hp || 0) + delta, 0, item.max_hp || 10);
+    const upd = {
+      current_hp: newHp
+    };
+    if (!isParty) upd.alive = newHp > 0;
+    await sb.from(isParty ? "characters" : "combatants").update(upd).eq("id", id);
+  });
+  const toggleCond = (id, cond, isParty) => sync(async () => {
+    const list = isParty ? party : combatants;
+    const item = list.find(c => c.id === id);
+    if (!item) return;
+    const conds = item.conditions || [];
+    const next = conds.includes(cond) ? conds.filter(x => x !== cond) : [...conds, cond];
+    await sb.from(isParty ? "characters" : "combatants").update({
+      conditions: next
+    }).eq("id", id);
+  });
+  const togglePip = (charId, resId, pipIdx) => sync(async () => {
+    const char = party.find(c => c.id === charId);
+    if (!char) return;
+    const res = (char.resources || []).find(r => r.id === resId);
+    if (!res) return;
+    const n = pipIdx < res.current ? pipIdx : pipIdx + 1;
+    const newResources = char.resources.map(r => r.id === resId ? _objectSpread(_objectSpread({}, r), {}, {
+      current: clamp(n, 0, r.max)
+    }) : r);
+    await sb.from("characters").update({
+      resources: newResources
+    }).eq("id", charId);
+  });
+  const delChar = id => sync(async () => {
+    await sb.from("characters").delete().eq("id", id);
+  });
+
+  // ── Combat ops ────────────────────────────────────────────────────────────
+  const saveCombatant = () => sync(async () => {
+    const maxHp = +combatForm.maxHp || 10;
+    const row = {
+      id: uid(),
+      name: (combatForm.name || "").trim() || "Unknown",
+      initiative: +combatForm.initiative || 0,
+      max_hp: maxHp,
+      current_hp: maxHp,
+      ac: +combatForm.ac || 10,
+      conditions: [],
+      is_player: combatForm.isPlayer === "true",
+      alive: true,
+      sort_order: combatants.length
+    };
+    const {
+      data
+    } = await sb.from("combatants").insert(row).select().single();
+    if (!campaign.current_turn_id && data) {
+      await sb.from("campaign").update({
+        current_turn_id: data.id
+      }).eq("id", "main");
+    }
+    setModal(null);
+  });
+  const delCombatant = id => sync(async () => {
+    await sb.from("combatants").delete().eq("id", id);
+    if (campaign.current_turn_id === id) {
+      var _remaining$;
+      const remaining = combatants.filter(c => c.id !== id && c.alive).sort((a, b) => b.initiative - a.initiative);
+      await sb.from("campaign").update({
+        current_turn_id: ((_remaining$ = remaining[0]) === null || _remaining$ === void 0 ? void 0 : _remaining$.id) || null
+      }).eq("id", "main");
+    }
+  });
+  const nextTurn = () => sync(async () => {
+    const sorted = [...combatants].sort((a, b) => b.initiative - a.initiative);
+    const ci = sorted.findIndex(c => c.id === campaign.current_turn_id);
+    let nx = ci + 1,
+      wrapped = false,
+      tries = 0;
+    while (tries < sorted.length) {
+      var _sorted$nx;
+      if (nx >= sorted.length) {
+        nx = 0;
+        wrapped = true;
+      }
+      if ((_sorted$nx = sorted[nx]) !== null && _sorted$nx !== void 0 && _sorted$nx.alive) {
+        const upd = {
+          current_turn_id: sorted[nx].id
+        };
+        if (wrapped) upd.round = (campaign.round || 1) + 1;
+        await sb.from("campaign").update(upd).eq("id", "main");
+        return;
+      }
+      nx++;
+      tries++;
+    }
+  });
+  const resetCombat = () => sync(async () => {
+    await sb.from("combatants").delete().neq("id", "__none__");
+    await sb.from("campaign").update({
+      round: 1,
+      current_turn_id: null
+    }).eq("id", "main");
+  });
+  const loadParty = () => sync(async () => {
+    const existing = new Set(combatants.filter(c => c.is_player).map(c => c.name));
+    const toAdd = party.filter(p => !existing.has(p.name)).map((p, i) => ({
+      id: uid(),
+      name: p.name,
+      initiative: 0,
+      max_hp: p.max_hp,
+      current_hp: p.current_hp,
+      ac: p.ac,
+      conditions: [...(p.conditions || [])],
+      is_player: true,
+      alive: p.current_hp > 0,
+      sort_order: combatants.length + i
+    }));
+    if (toAdd.length > 0) await sb.from("combatants").insert(toAdd);
+  });
+  const updateInit = (id, val) => sync(async () => {
+    await sb.from("combatants").update({
+      initiative: +val || 0
+    }).eq("id", id);
+    setEditInitFor(null);
+  });
+
+  // ── NPC ops ───────────────────────────────────────────────────────────────
+  const saveNPC = () => sync(async () => {
+    var _npcs$find$sort_order, _npcs$find;
+    const row = {
+      id: npcForm.editId || uid(),
+      name: (npcForm.name || "").trim() || "Unknown",
+      status: npcForm.status || "Unknown",
+      relationship: npcForm.relationship || "",
+      one_liner: npcForm.oneLiner || "",
+      notes: npcForm.notes || "",
+      secret: !!npcForm.secret,
+      sort_order: npcForm.editId ? (_npcs$find$sort_order = (_npcs$find = npcs.find(n => n.id === npcForm.editId)) === null || _npcs$find === void 0 ? void 0 : _npcs$find.sort_order) !== null && _npcs$find$sort_order !== void 0 ? _npcs$find$sort_order : 0 : npcs.length
+    };
+    await sb.from("npcs").upsert(row);
+    setModal(null);
+  });
+  const delNPC = id => sync(async () => {
+    await sb.from("npcs").delete().eq("id", id);
+  });
+
+  // ── Location ops ──────────────────────────────────────────────────────────
+  const saveLoc = () => sync(async () => {
+    var _locations$find$sort_, _locations$find;
+    const row = {
+      id: locForm.editId || uid(),
+      name: (locForm.name || "").trim() || "Unknown",
+      district: locForm.district || "",
+      status: locForm.status || "Unknown",
+      description: locForm.description || "",
+      secret: !!locForm.secret,
+      lat: locForm.lat ? +locForm.lat : 33.4484,
+      lng: locForm.lng ? +locForm.lng : -112.0740,
+      sort_order: locForm.editId ? (_locations$find$sort_ = (_locations$find = locations.find(l => l.id === locForm.editId)) === null || _locations$find === void 0 ? void 0 : _locations$find.sort_order) !== null && _locations$find$sort_ !== void 0 ? _locations$find$sort_ : 0 : locations.length
+    };
+    await sb.from("locations").upsert(row);
+    setModal(null);
+  });
+  const delLoc = id => sync(async () => {
+    await sb.from("locations").delete().eq("id", id);
+  });
+
+  // ── Resource ops ──────────────────────────────────────────────────────────
+  const addGroup = async () => {
+    const name = window.prompt("Source name (e.g. 'Shadow Serpent', 'Ancient Lair'):");
+    if (!(name !== null && name !== void 0 && name.trim())) return;
+    await sync(async () => {
+      await sb.from("resource_groups").insert({
+        id: uid(),
+        source_name: name.trim(),
+        collapsed: false,
+        sort_order: groups.length
+      });
+    });
+  };
+  const delGroup = id => sync(async () => {
+    await sb.from("resource_groups").delete().eq("id", id);
+  });
+  const saveRes = () => sync(async () => {
+    var _grp$resources;
+    if (!(resForm.name || "").trim()) return;
+    const grp = groups.find(g => g.id === addResFor);
+    await sb.from("resources").insert({
+      id: uid(),
+      group_id: addResFor,
+      name: resForm.name.trim(),
+      max_pips: parseInt(resForm.max) || 3,
+      current_pips: 0,
+      sort_order: (grp === null || grp === void 0 || (_grp$resources = grp.resources) === null || _grp$resources === void 0 ? void 0 : _grp$resources.length) || 0
+    });
+    setAddResFor(null);
+    setResForm({});
+  });
+  const delResource = resId => sync(async () => {
+    await sb.from("resources").delete().eq("id", resId);
+  });
+  const toggleRpip = (groupId, resId, pipIdx) => sync(async () => {
+    const grp = groups.find(g => g.id === groupId);
+    const res = grp === null || grp === void 0 ? void 0 : grp.resources.find(r => r.id === resId);
+    if (!res) return;
+    const cur = res.current_pips || 0;
+    const n = pipIdx < cur ? pipIdx : pipIdx + 1;
+    await sb.from("resources").update({
+      current_pips: clamp(n, 0, res.max_pips || 3)
+    }).eq("id", resId);
+  });
+  const toggleCollapse = id => sync(async () => {
+    const g = groups.find(x => x.id === id);
+    if (!g) return;
+    await sb.from("resource_groups").update({
+      collapsed: !g.collapsed
+    }).eq("id", id);
+  });
+
+  // ── Notes ops ─────────────────────────────────────────────────────────────
+  const addNote = () => sync(async () => {
+    const id = uid();
+    await sb.from("notes").insert({
+      id,
+      title: "New Page",
+      content: "",
+      page_date: "Session ".concat(notes.length + 1),
+      sort_order: notes.length
+    });
+    setActiveNoteId(id);
+  });
+  const delNote = id => sync(async () => {
+    var _notes$find;
+    await sb.from("notes").delete().eq("id", id);
+    if (activeNoteId === id) setActiveNoteId(((_notes$find = notes.find(n => n.id !== id)) === null || _notes$find === void 0 ? void 0 : _notes$find.id) || null);
+  });
+  // Debounced note update
+  const noteTimers = useRef({});
+  const updateNote = (id, key, val) => {
+    setNotes(p => p.map(n => n.id === id ? _objectSpread(_objectSpread({}, n), {}, {
+      [key]: val
+    }) : n));
+    clearTimeout(noteTimers.current[id + key]);
+    noteTimers.current[id + key] = setTimeout(async () => {
+      await sb.from("notes").update({
+        [key]: val
+      }).eq("id", id);
+    }, 600);
+  };
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  const BG = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "stars"
+  }, STARS.map(s => /*#__PURE__*/React.createElement("div", {
+    key: s.id,
+    className: "star",
+    style: {
+      left: "".concat(s.x, "%"),
+      top: "".concat(s.y, "%"),
+      width: s.s,
+      height: s.s,
+      animation: "twinkle ".concat(s.d, "s ease-in-out infinite"),
+      animationDelay: "".concat(s.dl, "s")
+    }
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "veil",
+    style: {
+      "--dur": "16s",
+      "--del": "0s",
+      left: "22%"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "veil",
+    style: {
+      "--dur": "21s",
+      "--del": "-9s",
+      left: "68%"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "veil",
+    style: {
+      "--dur": "13s",
+      "--del": "-4s",
+      left: "45%"
+    }
+  }));
+  if (!authed) return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      minHeight: "100vh"
+    }
+  }, BG, /*#__PURE__*/React.createElement(LoginScreen, {
+    onLogin: () => setAuthed(true)
+  }));
+  if (loading) return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      position: "relative"
+    }
+  }, BG, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      zIndex: 1,
+      textAlign: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "spinner"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 12,
+      fontSize: 9,
+      letterSpacing: 3,
+      textTransform: "uppercase",
+      color: "var(--tx3)"
+    }
+  }, "Loading Campaign...")));
+  const round = campaign.round || 1;
+  const curTurnId = campaign.current_turn_id;
+  const sortedCombatants = [...combatants].sort((a, b) => b.initiative - a.initiative);
+  const TABS = [{
+    id: "party",
+    label: "◆ Party"
+  }, {
+    id: "combat",
+    label: "⚔ Combat"
+  }, {
+    id: "npcs",
+    label: "👤 NPCs"
+  }, {
+    id: "locations",
+    label: "📍 Locations"
+  }, {
+    id: "resources",
+    label: "◈ Resources"
+  }, {
+    id: "notes",
+    label: "📋 Notes"
+  }, {
+    id: "settings",
+    label: "⚙ Settings"
+  }];
+  return /*#__PURE__*/React.createElement("div", null, BG, /*#__PURE__*/React.createElement("div", {
+    className: "wrap"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "geo"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "hdr"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "sky-wrap"
+  }, /*#__PURE__*/React.createElement(Skyline, null)), /*#__PURE__*/React.createElement("div", {
+    className: "eyebrow"
+  }, "Dungeon Master Suite"), /*#__PURE__*/React.createElement("div", {
+    className: "h-title"
+  }, theme.campaign_name || "Valley of the Sun II"), /*#__PURE__*/React.createElement("div", {
+    className: "h-sub"
+  }, theme.campaign_subtitle || "Phoenix · Beneath the Veil")), /*#__PURE__*/React.createElement("div", {
+    className: "tabs"
+  }, TABS.map(t => /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    className: "tab ".concat(tab === t.id ? "on" : ""),
+    onClick: () => setTab(t.id)
+  }, t.label))), /*#__PURE__*/React.createElement("div", {
+    className: "main"
+  }, tab === "party" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "sh"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sl"
+  }, "Party \u2014 ", party.length, " ", party.length === 1 ? "Adventurer" : "Adventurers"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: () => {
+      setCharForm({
+        resources: []
+      });
+      setModal("char");
+    }
+  }, "+ Add Character")), /*#__PURE__*/React.createElement("div", {
+    className: "pgrid"
+  }, party.map(c => {
+    const p = hpPct(c.current_hp, c.max_hp);
+    const isDown = c.current_hp <= 0;
+    const adjVal = adjustVals[c.id] || "";
+    const showPicker = condPicker === c.id;
+    return /*#__PURE__*/React.createElement("div", {
+      key: c.id,
+      className: "card".concat(isDown ? " dn" : "")
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "cardt"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      className: "cname"
+    }, c.name), /*#__PURE__*/React.createElement("div", {
+      className: "cmeta"
+    }, c.class, c.class && c.level ? " · " : "", c.level ? "Lvl " + c.level : "")), /*#__PURE__*/React.createElement("div", {
+      className: "lvl"
+    }, "LVL ", c.level)), /*#__PURE__*/React.createElement("div", {
+      className: "hpr"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "hpt"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "hplbl"
+    }, "Hit Points"), /*#__PURE__*/React.createElement("span", {
+      className: "hpn"
+    }, c.current_hp, /*#__PURE__*/React.createElement("span", {
+      className: "mx"
+    }, " / ", c.max_hp))), /*#__PURE__*/React.createElement("div", {
+      className: "hptrack"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "hpfill",
+      style: {
+        width: "".concat(p * 100, "%"),
+        background: hpCol(p)
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "hpc"
+    }, /*#__PURE__*/React.createElement("input", {
+      className: "ain",
+      type: "number",
+      min: "1",
+      placeholder: "amt",
+      value: adjVal,
+      onChange: e => setAdj(c.id, e.target.value),
+      onKeyDown: e => {
+        if (e.key === "Enter") {
+          adjustHP(c.id, -(parseInt(adjVal) || 0), true);
+          setAdj(c.id, "");
+        }
+      }
+    }), /*#__PURE__*/React.createElement("button", {
+      className: "btn bd2 bi",
+      onClick: () => {
+        adjustHP(c.id, -(parseInt(adjVal) || 0), true);
+        setAdj(c.id, "");
+      }
+    }, "\u2212"), /*#__PURE__*/React.createElement("button", {
+      className: "btn bl bi",
+      onClick: () => {
+        adjustHP(c.id, +(parseInt(adjVal) || 0), true);
+        setAdj(c.id, "");
+      }
+    }, "+"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 8,
+        color: "var(--tx3)",
+        letterSpacing: 1,
+        textTransform: "uppercase",
+        marginLeft: 2
+      }
+    }, "Dmg / Heal"))), /*#__PURE__*/React.createElement("div", {
+      className: "sr"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "sc"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "slbl"
+    }, "AC"), /*#__PURE__*/React.createElement("span", {
+      className: "sv"
+    }, c.ac)), /*#__PURE__*/React.createElement("div", {
+      className: "sc"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "slbl"
+    }, "Max HP"), /*#__PURE__*/React.createElement("span", {
+      className: "sv"
+    }, c.max_hp)), /*#__PURE__*/React.createElement("div", {
+      className: "sc"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "slbl"
+    }, "Status"), /*#__PURE__*/React.createElement("span", {
+      className: "sv",
+      style: {
+        fontSize: 10,
+        color: isDown ? "#CC3A3A" : p > .66 ? "#2A8A4A" : p > .33 ? "#C99A2E" : "#CC3A3A"
+      }
+    }, isDown ? "Down" : p > .66 ? "Good" : p > .33 ? "Hurt" : "Crit"))), /*#__PURE__*/React.createElement("div", {
+      className: "csec"
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "cslbl"
+    }, "Conditions"), /*#__PURE__*/React.createElement("button", {
+      className: "btn bx",
+      style: {
+        padding: "1px 6px",
+        fontSize: 8
+      },
+      onClick: () => setCondPicker(showPicker ? null : c.id)
+    }, showPicker ? "▲ Close" : "▼ Edit")), c.conditions.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "chips",
+      style: {
+        marginTop: 4
+      }
+    }, c.conditions.map(cnd => /*#__PURE__*/React.createElement("span", {
+      key: cnd,
+      className: "chip ac",
+      onClick: () => toggleCond(c.id, cnd, true)
+    }, cnd))), c.conditions.length === 0 && !showPicker && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9,
+        color: "var(--tx3)"
+      }
+    }, "None"), showPicker && /*#__PURE__*/React.createElement("div", {
+      className: "cpanel"
+    }, CONDITIONS.map(cnd => {
+      const a = c.conditions.includes(cnd);
+      return /*#__PURE__*/React.createElement("span", {
+        key: cnd,
+        className: "chip".concat(a ? " ac" : ""),
+        onClick: () => toggleCond(c.id, cnd, true)
+      }, cnd);
+    }))), (c.resources || []).length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "rssec"
+    }, c.resources.map(r => /*#__PURE__*/React.createElement("div", {
+      className: "rsrow",
+      key: r.id
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "rsn"
+    }, r.name || "Resource"), /*#__PURE__*/React.createElement("div", {
+      className: "pips"
+    }, Array.from({
+      length: r.max
+    }, (_, i) => /*#__PURE__*/React.createElement("div", {
+      key: i,
+      className: "pip".concat(i < r.current ? " on" : ""),
+      onClick: () => togglePip(c.id, r.id, i)
+    })))))), /*#__PURE__*/React.createElement("div", {
+      className: "cfoot"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "btn bx",
+      onClick: () => {
+        setCharForm({
+          editId: c.id,
+          name: c.name,
+          cls: c.class,
+          level: c.level,
+          maxHp: c.max_hp,
+          ac: c.ac,
+          resources: (c.resources || []).map(r => _objectSpread({}, r))
+        });
+        setModal("char");
+      }
+    }, "\u270E Edit"), /*#__PURE__*/React.createElement("button", {
+      className: "btn bd2 bx",
+      onClick: () => delChar(c.id)
+    }, "\u2715 Remove")));
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "addcard",
+    onClick: () => {
+      setCharForm({
+        resources: []
+      });
+      setModal("char");
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 22,
+      fontWeight: 300
+    }
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      letterSpacing: 2,
+      textTransform: "uppercase"
+    }
+  }, "Add Character")))), tab === "combat" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "cbhdr"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rbox"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rlbl"
+  }, "Round"), /*#__PURE__*/React.createElement("div", {
+    className: "rnum"
+  }, round)), /*#__PURE__*/React.createElement("div", {
+    className: "btns-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bl",
+    style: {
+      padding: "9px 18px",
+      fontSize: 11,
+      opacity: sortedCombatants.some(c => c.alive) ? 1 : .4
+    },
+    onClick: nextTurn,
+    disabled: !sortedCombatants.some(c => c.alive)
+  }, "\u25B6 Next Turn"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: () => {
+      setCombatForm({});
+      setModal("combat");
+    }
+  }, "+ Add Combatant"), party.length > 0 && /*#__PURE__*/React.createElement("button", {
+    className: "btn bg2",
+    onClick: loadParty
+  }, "\u2B06 Load Party"), combatants.length > 0 && /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: resetCombat
+  }, "\u21BA Reset"))), sortedCombatants.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "empty"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ei"
+  }, "\u2694"), /*#__PURE__*/React.createElement("div", {
+    className: "et"
+  }, "No Combatants"), /*#__PURE__*/React.createElement("div", {
+    className: "eb"
+  }, "Add combatants or load your party to begin."), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: () => {
+      setCombatForm({});
+      setModal("combat");
+    }
+  }, "+ Add Combatant")), /*#__PURE__*/React.createElement("div", {
+    className: "ilist"
+  }, sortedCombatants.map(c => {
+    const p = hpPct(c.current_hp, c.max_hp);
+    const isCur = c.id === curTurnId;
+    const adjVal = adjustVals[c.id + "_c"] || "";
+    const showPicker = condPicker === c.id + "_c";
+    return /*#__PURE__*/React.createElement("div", {
+      key: c.id,
+      style: {
+        display: "flex",
+        flexDirection: "column"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "irow".concat(isCur ? " cur" : "").concat(!c.alive ? " dead" : "")
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "inum-wrap"
+    }, editInitFor === c.id ? /*#__PURE__*/React.createElement("input", {
+      className: "inum-in",
+      type: "number",
+      defaultValue: c.initiative,
+      autoFocus: true,
+      onBlur: e => updateInit(c.id, e.target.value),
+      onKeyDown: e => {
+        if (e.key === "Enter" || e.key === "Escape") updateInit(c.id, e.target.value);
+      }
+    }) : /*#__PURE__*/React.createElement("span", {
+      className: "inum",
+      onClick: () => setEditInitFor(c.id)
+    }, c.initiative)), /*#__PURE__*/React.createElement("div", {
+      className: "inb"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "iname"
+    }, c.name), /*#__PURE__*/React.createElement("div", {
+      className: "ibadge".concat(c.is_player ? " pc" : "")
+    }, c.is_player ? "Player Character" : "NPC / Monster"), c.conditions.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "iconds"
+    }, c.conditions.map(cnd => /*#__PURE__*/React.createElement("span", {
+      key: cnd,
+      className: "ichip",
+      style: {
+        background: "".concat(CC[cnd], "28"),
+        color: CC[cnd],
+        border: "1px solid ".concat(CC[cnd], "60")
+      }
+    }, cnd)))), /*#__PURE__*/React.createElement("div", {
+      className: "chp"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "chpbar"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "hpfill",
+      style: {
+        width: "".concat(p * 100, "%"),
+        background: hpCol(p)
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "chpc"
+    }, /*#__PURE__*/React.createElement("input", {
+      className: "chin",
+      type: "number",
+      min: "1",
+      placeholder: "amt",
+      value: adjVal,
+      onChange: e => setAdj(c.id + "_c", e.target.value),
+      onKeyDown: e => {
+        if (e.key === "Enter") {
+          adjustHP(c.id, -(parseInt(adjVal) || 0), false);
+          setAdj(c.id + "_c", "");
+        }
+      }
+    }), /*#__PURE__*/React.createElement("button", {
+      className: "btn bd2 bi",
+      style: {
+        width: 19,
+        height: 19,
+        fontSize: 10
+      },
+      onClick: () => {
+        adjustHP(c.id, -(parseInt(adjVal) || 0), false);
+        setAdj(c.id + "_c", "");
+      }
+    }, "\u2212"), /*#__PURE__*/React.createElement("button", {
+      className: "btn bl bi",
+      style: {
+        width: 19,
+        height: 19,
+        fontSize: 10
+      },
+      onClick: () => {
+        adjustHP(c.id, +(parseInt(adjVal) || 0), false);
+        setAdj(c.id + "_c", "");
+      }
+    }, "+")), /*#__PURE__*/React.createElement("div", {
+      className: "chpt"
+    }, c.current_hp, " / ", c.max_hp)), /*#__PURE__*/React.createElement("div", {
+      className: "cac"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "cav"
+    }, c.ac), /*#__PURE__*/React.createElement("span", {
+      className: "cal"
+    }, "AC")), /*#__PURE__*/React.createElement("div", {
+      className: "cas"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "btn bx bi",
+      title: "Conditions",
+      onClick: () => setCondPicker(showPicker ? null : c.id + "_c")
+    }, "\u263F"), /*#__PURE__*/React.createElement("button", {
+      className: "btn bd2 bi",
+      onClick: () => delCombatant(c.id)
+    }, "\u2715"))), showPicker && /*#__PURE__*/React.createElement("div", {
+      className: "ipanel"
+    }, CONDITIONS.map(cnd => {
+      const a = c.conditions.includes(cnd);
+      return /*#__PURE__*/React.createElement("span", {
+        key: cnd,
+        className: "chip".concat(a ? " ac" : ""),
+        onClick: () => toggleCond(c.id, cnd, false)
+      }, cnd);
+    })));
+  }))), tab === "npcs" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "sh"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sl"
+  }, "NPCs \u2014 ", npcs.length, " Known"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      alignItems: "center"
+    }
+  }, npcs.some(n => n.secret) && !secretsUnlocked && /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    style: {
+      borderColor: "var(--tr)",
+      color: "var(--tr)"
+    },
+    onClick: () => {
+      setUnlockPass("");
+      setUnlockErr("");
+      setUnlockModal("npcs");
+    }
+  }, "\uD83D\uDD12 Unlock Secrets"), secretsUnlocked && /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    style: {
+      borderColor: "var(--tl)",
+      color: "var(--tl)"
+    },
+    onClick: () => setSecretsUnlocked(false)
+  }, "\uD83D\uDD13 Lock Secrets"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: () => {
+      setNpcForm({});
+      setModal("npc");
+    }
+  }, "+ Add NPC"))), npcs.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "empty"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ei"
+  }, "\uD83D\uDC64"), /*#__PURE__*/React.createElement("div", {
+    className: "et"
+  }, "No NPCs Yet"), /*#__PURE__*/React.createElement("div", {
+    className: "eb"
+  }, "Track people, creatures, and entities the party has encountered."), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: () => {
+      setNpcForm({});
+      setModal("npc");
+    }
+  }, "+ Add NPC")), /*#__PURE__*/React.createElement("div", {
+    className: "npc-grid"
+  }, npcs.map(n => {
+    const sc = NSC[n.status] || "#706860";
+    const exp = npcExp[n.id];
+    const isLocked = n.secret && !secretsUnlocked;
+    if (isLocked) return /*#__PURE__*/React.createElement("div", {
+      key: n.id,
+      className: "npc-card",
+      style: {
+        borderColor: "var(--tr)",
+        opacity: .7,
+        cursor: "pointer"
+      },
+      onClick: () => {
+        setUnlockPass("");
+        setUnlockErr("");
+        setUnlockModal("npcs");
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 6
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        fontWeight: 700,
+        letterSpacing: 2,
+        textTransform: "uppercase",
+        color: "var(--tr)"
+      }
+    }, "\uD83D\uDD12 Secret NPC"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 8,
+        color: "var(--tx3)"
+      }
+    }, "Click to unlock")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13,
+        color: "var(--tx3)",
+        fontStyle: "italic",
+        filter: "blur(4px)",
+        userSelect: "none",
+        marginBottom: 4
+      }
+    }, "\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "var(--tx3)"
+      }
+    }, "Enter DM passphrase to reveal"));
+    return /*#__PURE__*/React.createElement("div", {
+      key: n.id,
+      className: "npc-card",
+      style: n.secret ? {
+        borderColor: "rgba(196,98,45,.4)"
+      } : {}
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "npc-top"
+    }, /*#__PURE__*/React.createElement("div", null, n.secret && /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 7,
+        fontWeight: 700,
+        letterSpacing: 1.5,
+        textTransform: "uppercase",
+        color: "var(--tr)",
+        marginBottom: 2
+      }
+    }, "\uD83D\uDD13 SECRET"), /*#__PURE__*/React.createElement("div", {
+      className: "npc-name"
+    }, n.name)), /*#__PURE__*/React.createElement("span", {
+      className: "nstat",
+      style: {
+        background: sc + "20",
+        color: sc,
+        border: "1px solid " + sc + "50"
+      }
+    }, n.status)), n.relationship && /*#__PURE__*/React.createElement("div", {
+      className: "nrel"
+    }, n.relationship), n.one_liner && /*#__PURE__*/React.createElement("div", {
+      className: "nliner"
+    }, n.one_liner), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 4
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "btn bx",
+      onClick: () => {
+        setNpcForm({
+          editId: n.id,
+          name: n.name,
+          status: n.status,
+          relationship: n.relationship,
+          oneLiner: n.one_liner,
+          notes: n.notes,
+          secret: !!n.secret
+        });
+        setModal("npc");
+      }
+    }, "\u270E Edit"), /*#__PURE__*/React.createElement("button", {
+      className: "btn bd2 bx",
+      onClick: () => delNPC(n.id)
+    }, "\u2715")), n.notes && /*#__PURE__*/React.createElement("button", {
+      className: "nnotes-toggle",
+      onClick: () => setNpcExp(e => _objectSpread(_objectSpread({}, e), {}, {
+        [n.id]: !e[n.id]
+      }))
+    }, exp ? "▲ Notes" : "▼ Notes")), exp && n.notes && /*#__PURE__*/React.createElement("div", {
+      className: "nnotes"
+    }, n.notes));
+  }))), tab === "locations" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "sh"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sl"
+  }, "Locations \u2014 ", locations.length, " Known"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      alignItems: "center"
+    }
+  }, locations.some(l => l.secret) && !secretsUnlocked && /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    style: {
+      borderColor: "var(--tr)",
+      color: "var(--tr)"
+    },
+    onClick: () => {
+      setUnlockPass("");
+      setUnlockErr("");
+      setUnlockModal("locations");
+    }
+  }, "\uD83D\uDD12 Unlock Secrets"), secretsUnlocked && /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    style: {
+      borderColor: "var(--tl)",
+      color: "var(--tl)"
+    },
+    onClick: () => setSecretsUnlocked(false)
+  }, "\uD83D\uDD13 Lock Secrets"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: () => {
+      setLocForm({});
+      setModal("loc");
+    }
+  }, "+ Add Location"))), /*#__PURE__*/React.createElement("div", {
+    className: "map-container"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "map-label"
+  }, "\u25C6 Greater Phoenix, AZ"), placingPin && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1000,
+      background: "rgba(196,98,45,.92)",
+      padding: "8px 14px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      fontWeight: 700,
+      letterSpacing: 1.5,
+      textTransform: "uppercase",
+      color: "#fff"
+    }
+  }, "\uD83D\uDCCD Click the map to place your pin"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    style: {
+      borderColor: "rgba(255,255,255,.4)",
+      color: "#fff",
+      padding: "2px 8px",
+      fontSize: 9
+    },
+    onClick: () => {
+      setPlacingPin(false);
+      setModal("loc");
+    }
+  }, "Cancel")), /*#__PURE__*/React.createElement(PhoenixMap, {
+    locations: locations,
+    placingPin: placingPin,
+    onMapClick: ll => {
+      if (!placingPin) return;
+      setLocForm(f => _objectSpread(_objectSpread({}, f), {}, {
+        lat: ll.lat.toFixed(5),
+        lng: ll.lng.toFixed(5)
+      }));
+      setPlacingPin(false);
+      setModal("loc");
+    }
+  })), locations.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "empty"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ei"
+  }, "\uD83D\uDCCD"), /*#__PURE__*/React.createElement("div", {
+    className: "et"
+  }, "No Locations Yet"), /*#__PURE__*/React.createElement("div", {
+    className: "eb"
+  }, "Track places the party has visited, explored, or heard rumors about."), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: () => {
+      setLocForm({});
+      setModal("loc");
+    }
+  }, "+ Add Location")), /*#__PURE__*/React.createElement("div", {
+    className: "loc-grid"
+  }, locations.map(l => {
+    const sc = LSC[l.status] || "#706860";
+    const isLocked = l.secret && !secretsUnlocked;
+    if (isLocked) return /*#__PURE__*/React.createElement("div", {
+      key: l.id,
+      className: "loc-card",
+      style: {
+        borderColor: "var(--tr)",
+        opacity: .7,
+        cursor: "pointer"
+      },
+      onClick: () => {
+        setUnlockPass("");
+        setUnlockErr("");
+        setUnlockModal("locations");
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 6
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        fontWeight: 700,
+        letterSpacing: 2,
+        textTransform: "uppercase",
+        color: "var(--tr)"
+      }
+    }, "\uD83D\uDD12 Secret Location"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 8,
+        color: "var(--tx3)"
+      }
+    }, "Click to unlock")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13,
+        color: "var(--tx3)",
+        fontStyle: "italic",
+        filter: "blur(4px)",
+        userSelect: "none",
+        marginBottom: 4
+      }
+    }, "\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "var(--tx3)"
+      }
+    }, "Enter DM passphrase to reveal"));
+    return /*#__PURE__*/React.createElement("div", {
+      key: l.id,
+      className: "loc-card",
+      style: l.secret ? {
+        borderColor: "rgba(196,98,45,.4)"
+      } : {}
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "loc-top"
+    }, /*#__PURE__*/React.createElement("div", null, l.secret && /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 7,
+        fontWeight: 700,
+        letterSpacing: 1.5,
+        textTransform: "uppercase",
+        color: "var(--tr)",
+        marginBottom: 2
+      }
+    }, "\uD83D\uDD13 SECRET"), /*#__PURE__*/React.createElement("div", {
+      className: "ldistrict"
+    }, l.district || "Phoenix, AZ"), /*#__PURE__*/React.createElement("div", {
+      className: "loc-name"
+    }, l.name)), /*#__PURE__*/React.createElement("span", {
+      className: "lstat",
+      style: {
+        background: sc + "20",
+        color: sc,
+        border: "1px solid " + sc + "50",
+        marginLeft: 6,
+        flexShrink: 0
+      }
+    }, l.status)), l.description && /*#__PURE__*/React.createElement("div", {
+      className: "ldesc"
+    }, l.description), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 4,
+        marginTop: 8,
+        paddingTop: 7,
+        borderTop: "1px solid var(--bd)"
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "btn bx",
+      onClick: () => {
+        setLocForm({
+          editId: l.id,
+          name: l.name,
+          district: l.district,
+          status: l.status,
+          description: l.description,
+          lat: l.lat,
+          lng: l.lng,
+          secret: !!l.secret
+        });
+        setModal("loc");
+      }
+    }, "\u270E Edit"), /*#__PURE__*/React.createElement("button", {
+      className: "btn bd2 bx",
+      onClick: () => delLoc(l.id)
+    }, "\u2715")));
+  }))), tab === "resources" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "sh"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sl"
+  }, "Resources \u2014 ", groups.length, " ", groups.length === 1 ? "Source" : "Sources"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: addGroup
+  }, "+ Add Source")), groups.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "empty"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ei"
+  }, "\u25C8"), /*#__PURE__*/React.createElement("div", {
+    className: "et"
+  }, "No Resources Yet"), /*#__PURE__*/React.createElement("div", {
+    className: "eb"
+  }, "Track legendary actions, lair actions, boss phases, NPC abilities."), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: addGroup
+  }, "+ Add Source")), /*#__PURE__*/React.createElement("div", {
+    className: "rg-list"
+  }, groups.map(g => /*#__PURE__*/React.createElement("div", {
+    key: g.id,
+    className: "rg-section"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rg-header",
+    onClick: () => toggleCollapse(g.id)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "rg-arrow".concat(!g.collapsed ? " open" : "")
+  }, "\u25B6"), /*#__PURE__*/React.createElement("span", {
+    className: "rg-title"
+  }, g.source_name), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      color: "var(--tx3)"
+    }
+  }, (g.resources || []).length, " resource", (g.resources || []).length !== 1 ? "s" : ""), /*#__PURE__*/React.createElement("button", {
+    className: "btn bd2 bx bi",
+    style: {
+      marginLeft: 4
+    },
+    onClick: e => {
+      e.stopPropagation();
+      delGroup(g.id);
+    }
+  }, "\u2715")), !g.collapsed && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "rg-body"
+  }, (g.resources || []).length === 0 && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: "var(--tx3)",
+      fontStyle: "italic"
+    }
+  }, "No resources added yet."), (g.resources || []).map(r => /*#__PURE__*/React.createElement("div", {
+    className: "rr",
+    key: r.id
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "rr-name"
+  }, r.name), /*#__PURE__*/React.createElement("div", {
+    className: "rr-pips"
+  }, Array.from({
+    length: r.max_pips || 3
+  }, (_, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "rpip".concat(i < (r.current_pips || 0) ? " on" : ""),
+    onClick: () => toggleRpip(g.id, r.id, i)
+  }))), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      color: "var(--tx3)",
+      minWidth: 30,
+      textAlign: "right"
+    }
+  }, r.current_pips || 0, "/", r.max_pips || 3), /*#__PURE__*/React.createElement("button", {
+    className: "btn bd2 bx bi",
+    onClick: () => delResource(r.id)
+  }, "\u2715")))), /*#__PURE__*/React.createElement("div", {
+    className: "rg-foot"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: () => setAddResFor(g.id)
+  }, "+ Add Resource"))))))), tab === "notes" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "sh",
+    style: {
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sl"
+  }, "Session Notes \u2014 ", notes.length, " ", notes.length === 1 ? "Page" : "Pages"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: addNote
+  }, "+ New Page")), /*#__PURE__*/React.createElement("div", {
+    className: "notes-wrap"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "notes-sidebar"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "notes-sidebar-hdr"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "notes-sidebar-title"
+  }, "Pages")), /*#__PURE__*/React.createElement("div", {
+    className: "notes-list"
+  }, notes.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "14px 10px",
+      fontSize: 10,
+      color: "var(--tx3)",
+      fontStyle: "italic"
+    }
+  }, "No pages yet."), notes.map(n => /*#__PURE__*/React.createElement("div", {
+    key: n.id,
+    className: "note-item".concat(n.id === activeNoteId ? " on" : ""),
+    onClick: () => setActiveNoteId(n.id)
+  }, /*#__PURE__*/React.createElement("div", null, n.title || "Untitled"), /*#__PURE__*/React.createElement("div", {
+    className: "note-date"
+  }, n.page_date || ""))))), /*#__PURE__*/React.createElement("div", {
+    className: "notes-editor"
+  }, !notes.find(n => n.id === activeNoteId) && /*#__PURE__*/React.createElement("div", {
+    className: "notes-editor-empty"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 28,
+      opacity: .2
+    }
+  }, "\uD83D\uDCCB"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      letterSpacing: 2,
+      textTransform: "uppercase"
+    }
+  }, "Select a page or create one")), notes.filter(n => n.id === activeNoteId).map(active => {
+    const wc = active.content.trim().split(/\s+/).filter(Boolean).length;
+    return /*#__PURE__*/React.createElement(Fragment, {
+      key: active.id
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "note-title-bar"
+    }, /*#__PURE__*/React.createElement("input", {
+      className: "note-title-in",
+      placeholder: "Page title...",
+      value: active.title || "",
+      onChange: e => updateNote(active.id, "title", e.target.value)
+    }), /*#__PURE__*/React.createElement("button", {
+      className: "btn bd2 bx",
+      onClick: () => delNote(active.id)
+    }, "\u2715 Delete")), /*#__PURE__*/React.createElement("textarea", {
+      className: "note-ta",
+      placeholder: "Write your session notes here...",
+      value: active.content || "",
+      onChange: e => updateNote(active.id, "content", e.target.value)
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "note-footer"
+    }, /*#__PURE__*/React.createElement("span", null, active.page_date || ""), /*#__PURE__*/React.createElement("span", null, wc, " word", wc !== 1 ? "s" : "")));
+  })))), tab === "settings" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "sh"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sl"
+  }, "Campaign Settings")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "var(--bg2)",
+      border: "1px solid var(--bd)",
+      padding: 16,
+      marginBottom: 16,
+      clipPath: "polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px))"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      letterSpacing: 3,
+      textTransform: "uppercase",
+      color: "var(--tx3)",
+      marginBottom: 12
+    }
+  }, "\u25C6 Campaign Identity"), /*#__PURE__*/React.createElement("div", {
+    className: "fg",
+    style: {
+      marginBottom: 7
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Campaign Name"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    value: theme.campaign_name || "",
+    placeholder: "Campaign name...",
+    onChange: e => setTheme(t => _objectSpread(_objectSpread({}, t), {}, {
+      campaign_name: e.target.value
+    })),
+    onBlur: async e => {
+      await sync(async () => {
+        await sb.from("theme").update({
+          campaign_name: e.target.value
+        }).eq("id", "main");
+      });
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Subtitle"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    value: theme.campaign_subtitle || "",
+    placeholder: "Setting, location, tagline...",
+    onChange: e => setTheme(t => _objectSpread(_objectSpread({}, t), {}, {
+      campaign_subtitle: e.target.value
+    })),
+    onBlur: async e => {
+      await sync(async () => {
+        await sb.from("theme").update({
+          campaign_subtitle: e.target.value
+        }).eq("id", "main");
+      });
+    }
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "var(--bg2)",
+      border: "1px solid var(--bd)",
+      padding: 16,
+      marginBottom: 16,
+      clipPath: "polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px))"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      letterSpacing: 3,
+      textTransform: "uppercase",
+      color: "var(--tx3)",
+      marginBottom: 12
+    }
+  }, "\u25C6 Theme Presets"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))",
+      gap: 10
+    }
+  }, PRESETS.map(p => {
+    const isActive = theme.preset === p.id;
+    return /*#__PURE__*/React.createElement("div", {
+      key: p.id,
+      onClick: async () => {
+        const merged = _objectSpread({}, p);
+        setTheme(t => _objectSpread(_objectSpread({}, t), merged));
+        applyTheme(merged);
+        await sync(async () => {
+          await sb.from("theme").update({
+            preset: p.id,
+            color_primary: p.color_primary,
+            color_secondary: p.color_secondary,
+            color_tertiary: p.color_tertiary,
+            color_bg: p.color_bg,
+            color_tx: p.color_tx,
+            bg1: p.bg1,
+            bg2: p.bg2,
+            bg3: p.bg3,
+            bd: p.bd,
+            bd2: p.bd2,
+            tx2: p.tx2,
+            tx3: p.tx3
+          }).eq("id", "main");
+        });
+      },
+      style: {
+        padding: "11px 12px",
+        cursor: "pointer",
+        borderRadius: 2,
+        border: "1px solid " + (isActive ? "var(--tr)" : "var(--bd2)"),
+        background: isActive ? "rgba(var(--tr-raw),.06)" : "var(--bg3)",
+        transition: "all .15s",
+        position: "relative",
+        outline: isActive ? "1px solid var(--tr)" : "none",
+        outlineOffset: isActive ? -1 : 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 4,
+        marginBottom: 8
+      }
+    }, [p.color_primary, p.color_secondary, p.color_tertiary].map((c, i) => /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        flex: 1,
+        height: 6,
+        background: c,
+        borderRadius: 1
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 3,
+        height: 6,
+        background: p.color_bg,
+        border: "1px solid " + p.bd2,
+        borderRadius: 1
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "baseline",
+        gap: 6,
+        marginBottom: 3
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 13
+      }
+    }, p.emoji), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        color: "var(--tx)"
+      }
+    }, p.label), isActive && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 7,
+        fontWeight: 700,
+        letterSpacing: 1.5,
+        color: "var(--tr)",
+        textTransform: "uppercase",
+        marginLeft: "auto"
+      }
+    }, "Active")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: "var(--tx3)",
+        lineHeight: 1.5
+      }
+    }, p.desc));
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "var(--bg2)",
+      border: "1px solid var(--bd)",
+      padding: 16,
+      clipPath: "polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px))"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      letterSpacing: 3,
+      textTransform: "uppercase",
+      color: "var(--tx3)",
+      marginBottom: 4
+    }
+  }, "\u25C6 Custom Colors"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "var(--tx3)",
+      marginBottom: 12
+    }
+  }, "Fine-tune individual colors. Changes apply live and save automatically."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))",
+      gap: 8
+    }
+  }, [{
+    key: "color_primary",
+    label: "Primary Accent"
+  }, {
+    key: "color_secondary",
+    label: "Secondary Accent"
+  }, {
+    key: "color_tertiary",
+    label: "Tertiary Accent"
+  }, {
+    key: "color_bg",
+    label: "Background"
+  }, {
+    key: "color_tx",
+    label: "Text Color"
+  }].map(_ref0 => {
+    let {
+      key,
+      label
+    } = _ref0;
+    return /*#__PURE__*/React.createElement("div", {
+      key: key,
+      className: "fgg"
+    }, /*#__PURE__*/React.createElement("label", {
+      className: "fl"
+    }, label), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 5,
+        alignItems: "center"
+      }
+    }, /*#__PURE__*/React.createElement("input", {
+      type: "color",
+      value: theme[key] || "#888888",
+      style: {
+        width: 28,
+        height: 28,
+        border: "1px solid var(--bd2)",
+        background: "none",
+        cursor: "pointer",
+        borderRadius: 2,
+        padding: 2,
+        flexShrink: 0
+      },
+      onChange: e => {
+        const val = e.target.value;
+        setTheme(t => {
+          const u = _objectSpread(_objectSpread({}, t), {}, {
+            [key]: val
+          });
+          applyTheme(u);
+          return u;
+        });
+      },
+      onBlur: async e => {
+        await sync(async () => {
+          await sb.from("theme").update({
+            [key]: e.target.value,
+            preset: "custom"
+          }).eq("id", "main");
+        });
+      }
+    }), /*#__PURE__*/React.createElement("input", {
+      className: "fi",
+      value: theme[key] || "",
+      style: {
+        fontFamily: "monospace",
+        fontSize: 11,
+        letterSpacing: .5
+      },
+      onChange: e => {
+        const val = e.target.value;
+        setTheme(t => {
+          const u = _objectSpread(_objectSpread({}, t), {}, {
+            [key]: val
+          });
+          if (/^#[0-9A-Fa-f]{6}$/.test(val)) applyTheme(u);
+          return u;
+        });
+      },
+      onBlur: async e => {
+        const val = e.target.value;
+        if (!/^#[0-9A-Fa-f]{6}$/.test(val)) return;
+        await sync(async () => {
+          await sb.from("theme").update({
+            [key]: val,
+            preset: "custom"
+          }).eq("id", "main");
+        });
+      }
+    })));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 12,
+      paddingTop: 10,
+      borderTop: "1px solid var(--bd)",
+      display: "flex",
+      gap: 6,
+      justifyContent: "flex-end"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: async () => {
+      const base = PRESETS.find(p => p.id === "desert-night");
+      setTheme(t => _objectSpread(_objectSpread({}, t), base));
+      applyTheme(base);
+      await sync(async () => {
+        await sb.from("theme").update({
+          preset: "desert-night",
+          color_primary: base.color_primary,
+          color_secondary: base.color_secondary,
+          color_tertiary: base.color_tertiary,
+          color_bg: base.color_bg,
+          color_tx: base.color_tx,
+          bg1: base.bg1,
+          bg2: base.bg2,
+          bg3: base.bg3,
+          bd: base.bd,
+          bd2: base.bd2,
+          tx2: base.tx2,
+          tx3: base.tx3
+        }).eq("id", "main");
+      });
+    }
+  }, "\u21BA Reset to Default")))))), /*#__PURE__*/React.createElement("div", {
+    className: "sync".concat(syncing ? " active" : "")
+  }, syncing ? "● Syncing..." : "◆ Live"), modal && /*#__PURE__*/React.createElement(ModalShell, {
+    onClose: () => setModal(null)
+  }, modal === "char" && /*#__PURE__*/React.createElement(CharModal, {
+    form: charForm,
+    setForm: setCharForm,
+    onSave: saveChar,
+    onClose: () => setModal(null)
+  }), modal === "combat" && /*#__PURE__*/React.createElement(CombatModal, {
+    form: combatForm,
+    setForm: setCombatForm,
+    onSave: saveCombatant,
+    onClose: () => setModal(null)
+  }), modal === "npc" && /*#__PURE__*/React.createElement(NPCModal, {
+    form: npcForm,
+    setForm: setNpcForm,
+    onSave: saveNPC,
+    onClose: () => setModal(null)
+  }), modal === "loc" && /*#__PURE__*/React.createElement(LocationModal, {
+    form: locForm,
+    setForm: setLocForm,
+    onSave: saveLoc,
+    onClose: () => setModal(null),
+    onPickOnMap: () => {
+      setModal(null);
+      setPlacingPin(true);
+      setTab("locations");
+    }
+  })), unlockModal && /*#__PURE__*/React.createElement(ModalShell, {
+    onClose: () => setUnlockModal(null)
+  }, /*#__PURE__*/React.createElement(UnlockModal, {
+    label: unlockModal === "npcs" ? "NPC" : "Location",
+    pass: unlockPass,
+    setPass: setUnlockPass,
+    err: unlockErr,
+    onClose: () => setUnlockModal(null),
+    onUnlock: async () => {
+      const {
+        data
+      } = await sb.from("campaign").select("passphrase").eq("id", "main").single();
+      if (data && data.passphrase === unlockPass.trim()) {
+        setSecretsUnlocked(true);
+        setUnlockModal(null);
+        setUnlockPass("");
+        setUnlockErr("");
+      } else {
+        setUnlockErr("Incorrect passphrase.");
+      }
+    }
+  })), addResFor && /*#__PURE__*/React.createElement(ModalShell, {
+    onClose: () => {
+      setAddResFor(null);
+      setResForm({});
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mtitle"
+  }, /*#__PURE__*/React.createElement("span", null, "\u2726 Add Resource \u2014 ", ((_groups$find = groups.find(g => g.id === addResFor)) === null || _groups$find === void 0 ? void 0 : _groups$find.source_name) || ""), /*#__PURE__*/React.createElement("button", {
+    className: "btn bx bi",
+    onClick: () => {
+      setAddResFor(null);
+      setResForm({});
+    }
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    className: "fg fg1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Resource Name"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    placeholder: "Legendary Actions, Spell Slots...",
+    value: resForm.name || "",
+    onChange: e => setResForm(f => _objectSpread(_objectSpread({}, f), {}, {
+      name: e.target.value
+    }))
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "fg fg1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fgg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "fl"
+  }, "Max Pips (1\u201320)"), /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    type: "number",
+    min: "1",
+    max: "20",
+    placeholder: "3",
+    value: resForm.max || "",
+    onChange: e => setResForm(f => _objectSpread(_objectSpread({}, f), {}, {
+      max: e.target.value
+    }))
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "mfoot"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: () => {
+      setAddResFor(null);
+      setResForm({});
+    }
+  }, "Cancel"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bt",
+    onClick: saveRes,
+    disabled: !(resForm.name || "").trim(),
+    style: {
+      opacity: (resForm.name || "").trim() ? 1 : .45
+    }
+  }, "Add Resource"))));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/React.createElement(App, null));
+
+</script>
+</body>
+</html>
