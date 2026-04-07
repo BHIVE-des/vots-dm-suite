@@ -202,29 +202,17 @@ body{color:var(--tx);font-family:'Barlow Condensed',sans-serif;min-height:100vh;
 </head>
 <body>
 <div id="root"></div>
-
-<!-- Dependencies -->
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-
-<!-- CONFIGURE YOUR SUPABASE CREDENTIALS HERE -->
 <script>
   window.SUPABASE_URL = "https://zdskupqfbudsotkcmoan.supabase.co";
   window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpkc2t1cHFmYnVkc290a2Ntb2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NzY3NDQsImV4cCI6MjA4ODE1Mjc0NH0.YGTNjlwWzw-ZFeeI2acQ6esBC8BIBlQbMijvfnT27K8";
 </script>
-
 <!-- Pre-compiled app (no Babel needed) -->
 <script>
-function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-// Valley of the Sun II — DM Suite
-// Pre-compiled source
-
+// Valley of the Sun II — DM Suite  (full source)
 const {
   useState,
   useEffect,
@@ -235,8 +223,6 @@ const {
 const {
   createClient
 } = supabase;
-
-// ── Config ────────────────────────────────────────────────────────────────────
 const SUPABASE_URL = window.SUPABASE_URL || "https://zdskupqfbudsotkcmoan.supabase.co";
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpkc2t1cHFmYnVkc290a2Ntb2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NzY3NDQsImV4cCI6MjA4ODE1Mjc0NH0.YGTNjlwWzw-ZFeeI2acQ6esBC8BIBlQbMijvfnT27K8";
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -388,6 +374,7 @@ const PRESETS = [{
 const DEFAULT_THEME = PRESETS[0];
 function applyTheme(t) {
   const r = document.documentElement.style;
+  document.documentElement.style.zoom = t.text_scale || 1;
   r.setProperty("--tr", t.color_primary);
   r.setProperty("--tr2", lighten(t.color_primary, 20));
   r.setProperty("--gd", t.color_secondary);
@@ -466,7 +453,6 @@ function PhoenixMap(_ref2) {
   const ref = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef({});
-  const previewRef = useRef(null);
   useEffect(() => {
     if (mapRef.current) return;
     mapRef.current = L.map(ref.current, {
@@ -478,21 +464,14 @@ function PhoenixMap(_ref2) {
       subdomains: 'abcd'
     }).addTo(mapRef.current);
   }, []);
-
-  // Update cursor and click handler when placingPin changes
   useEffect(() => {
     if (!mapRef.current) return;
     const m = mapRef.current;
-    const container = m.getContainer();
-    container.style.cursor = placingPin ? "crosshair" : "";
+    m.getContainer().style.cursor = placingPin ? "crosshair" : "";
     const handler = e => {
       if (onMapClick) onMapClick(e.latlng);
     };
-    if (placingPin) {
-      m.on("click", handler);
-    } else {
-      m.off("click", handler);
-    }
+    if (placingPin) m.on("click", handler);else m.off("click", handler);
     return () => m.off("click", handler);
   }, [placingPin, onMapClick]);
   useEffect(() => {
@@ -510,7 +489,7 @@ function PhoenixMap(_ref2) {
       const sc = LSC[loc.status] || "#706860";
       const icon = L.divIcon({
         className: '',
-        html: "<div style=\"width:12px;height:12px;background:".concat(sc, ";border:2px solid ").concat(sc, "80;transform:rotate(45deg);box-shadow:0 0 6px ").concat(sc, "60;\"></div>"),
+        html: `<div style="width:12px;height:12px;background:${sc};border:2px solid ${sc}80;transform:rotate(45deg);box-shadow:0 0 6px ${sc}60;"></div>`,
         iconSize: [12, 12],
         iconAnchor: [6, 6]
       });
@@ -520,7 +499,7 @@ function PhoenixMap(_ref2) {
         const mk = L.marker([+loc.lat, +loc.lng], {
           icon
         }).addTo(m);
-        mk.bindPopup("<div style=\"font-size:12px;color:#E0D5C0;padding:4px 6px;\">".concat(loc.name, "<br/><span style=\"font-size:10px;color:#9A8E78;\">").concat(loc.district || '', "</span></div>"));
+        mk.bindPopup(`<div style="font-size:12px;color:#E0D5C0;padding:4px 6px;">${loc.name}<br/><span style="font-size:10px;color:#9A8E78;">${loc.district || ''}</span></div>`);
         markersRef.current[loc.id] = mk;
       }
     });
@@ -534,12 +513,247 @@ function PhoenixMap(_ref2) {
   });
 }
 
+// ── Relationship Web ──────────────────────────────────────────────────────────
+function RelationshipView(_ref3) {
+  let {
+    npcs,
+    npcLinks,
+    secretsUnlocked,
+    campaignName,
+    linkMode,
+    linkingFrom,
+    setLinkingFrom,
+    onNpcClick,
+    onAddLink,
+    onDelLink
+  } = _ref3;
+  const [hoveredLink, setHoveredLink] = useState(null);
+  const W = 800,
+    H = 560,
+    cx = W / 2,
+    cy = H / 2;
+  const visible = npcs.filter(n => !n.secret || secretsUnlocked);
+  const hiddenCount = npcs.filter(n => n.secret && !secretsUnlocked).length;
+  const R = visible.length <= 6 ? 175 : visible.length <= 12 ? 210 : 245;
+  const nodes = visible.map((n, i) => {
+    const angle = i / visible.length * 2 * Math.PI - Math.PI / 2;
+    return {
+      ...n,
+      x: cx + R * Math.cos(angle),
+      y: cy + R * Math.sin(angle)
+    };
+  });
+  const getNode = id => nodes.find(n => n.id === id);
+  const titleWords = (campaignName || "The Party").split(" ");
+  const titleL1 = titleWords.slice(0, 2).join(" ");
+  const titleL2 = titleWords.length > 2 ? titleWords.slice(2).join(" ") : "Party";
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative"
+    }
+  }, linkMode && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "rgba(196,98,45,.88)",
+      padding: "7px 12px",
+      marginBottom: 8,
+      fontSize: 9,
+      fontWeight: 700,
+      letterSpacing: 1.5,
+      textTransform: "uppercase",
+      color: "#fff",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 8,
+      borderRadius: 2
+    }
+  }, /*#__PURE__*/React.createElement("span", null, linkingFrom ? "Now click a second NPC to connect — or click the same NPC to cancel" : "Click any NPC node to start a link")), /*#__PURE__*/React.createElement("svg", {
+    viewBox: `0 0 ${W} ${H}`,
+    style: {
+      width: "100%",
+      height: "auto",
+      maxHeight: 520,
+      display: "block",
+      background: "var(--bg2)",
+      border: "1px solid var(--bd)",
+      borderRadius: 2
+    }
+  }, nodes.map(n => /*#__PURE__*/React.createElement("g", {
+    key: "spoke-" + n.id
+  }, /*#__PURE__*/React.createElement("line", {
+    x1: cx,
+    y1: cy,
+    x2: n.x,
+    y2: n.y,
+    stroke: "var(--bd2)",
+    strokeWidth: 1,
+    opacity: 0.6
+  }), n.relationship && /*#__PURE__*/React.createElement("text", {
+    x: (cx + n.x) / 2,
+    y: (cy + n.y) / 2 - 5,
+    textAnchor: "middle",
+    fontSize: 8,
+    fill: "var(--tx3)",
+    style: {
+      pointerEvents: "none"
+    }
+  }, n.relationship))), npcLinks.map(link => {
+    const src = getNode(link.source_id),
+      tgt = getNode(link.target_id);
+    if (!src || !tgt) return null;
+    const mx = (src.x + tgt.x) / 2,
+      my = (src.y + tgt.y) / 2;
+    const isHov = hoveredLink === link.id;
+    return /*#__PURE__*/React.createElement("g", {
+      key: link.id,
+      onMouseEnter: () => setHoveredLink(link.id),
+      onMouseLeave: () => setHoveredLink(null)
+    }, /*#__PURE__*/React.createElement("line", {
+      x1: src.x,
+      y1: src.y,
+      x2: tgt.x,
+      y2: tgt.y,
+      stroke: isHov ? "var(--tr)" : "var(--gd)",
+      strokeWidth: isHov ? 2.5 : 1.5,
+      strokeDasharray: "5,3",
+      opacity: 0.85
+    }), link.label && /*#__PURE__*/React.createElement("text", {
+      x: mx,
+      y: my - 6,
+      textAnchor: "middle",
+      fontSize: 8,
+      fill: isHov ? "var(--tr)" : "var(--gd)",
+      fontWeight: 600,
+      style: {
+        pointerEvents: "none"
+      }
+    }, link.label), isHov && /*#__PURE__*/React.createElement("g", {
+      onClick: () => onDelLink(link.id),
+      style: {
+        cursor: "pointer"
+      }
+    }, /*#__PURE__*/React.createElement("circle", {
+      cx: mx,
+      cy: my + 10,
+      r: 8,
+      fill: "#CC3A3A",
+      opacity: 0.9
+    }), /*#__PURE__*/React.createElement("text", {
+      x: mx,
+      y: my + 14,
+      textAnchor: "middle",
+      fontSize: 10,
+      fill: "#fff",
+      style: {
+        pointerEvents: "none"
+      }
+    }, "\u2715")));
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: cx,
+    cy: cy,
+    r: 34,
+    fill: "var(--bg3)",
+    stroke: "var(--gd)",
+    strokeWidth: 2
+  }), /*#__PURE__*/React.createElement("text", {
+    x: cx,
+    y: cy - 5,
+    textAnchor: "middle",
+    fontSize: 9,
+    fill: "var(--gd)",
+    fontWeight: 700
+  }, titleL1), /*#__PURE__*/React.createElement("text", {
+    x: cx,
+    y: cy + 8,
+    textAnchor: "middle",
+    fontSize: 8,
+    fill: "var(--tx3)"
+  }, titleL2), nodes.map(n => {
+    const sc = NSC[n.status] || "#706860";
+    const isFrom = linkingFrom === n.id;
+    const dimmed = linkMode && linkingFrom && !isFrom;
+    return /*#__PURE__*/React.createElement("g", {
+      key: n.id,
+      style: {
+        cursor: "pointer"
+      },
+      onClick: () => {
+        if (!linkMode) {
+          onNpcClick(n);
+          return;
+        }
+        if (!linkingFrom) {
+          setLinkingFrom(n.id);
+          return;
+        }
+        if (linkingFrom === n.id) {
+          setLinkingFrom(null);
+          return;
+        }
+        onAddLink(linkingFrom, n.id);
+      }
+    }, /*#__PURE__*/React.createElement("circle", {
+      cx: n.x,
+      cy: n.y,
+      r: 26,
+      fill: "var(--bg3)",
+      stroke: isFrom ? "var(--gd)" : sc,
+      strokeWidth: isFrom ? 3 : 1.5,
+      opacity: dimmed ? 0.45 : 1
+    }), n.secret && /*#__PURE__*/React.createElement("circle", {
+      cx: n.x,
+      cy: n.y,
+      r: 26,
+      fill: "none",
+      stroke: "var(--tr)",
+      strokeWidth: 1,
+      strokeDasharray: "3,3"
+    }), /*#__PURE__*/React.createElement("text", {
+      x: n.x,
+      y: n.y + 5,
+      textAnchor: "middle",
+      fontSize: 14,
+      fill: isFrom ? "var(--gd)" : sc,
+      fontWeight: 700,
+      style: {
+        pointerEvents: "none"
+      }
+    }, n.name[0]?.toUpperCase()), /*#__PURE__*/React.createElement("text", {
+      x: n.x,
+      y: n.y + 36,
+      textAnchor: "middle",
+      fontSize: 9,
+      fill: "var(--tx)",
+      fontWeight: 600,
+      style: {
+        pointerEvents: "none"
+      }
+    }, n.name.length > 14 ? n.name.slice(0, 13) + "…" : n.name), n.status && /*#__PURE__*/React.createElement("text", {
+      x: n.x,
+      y: n.y + 47,
+      textAnchor: "middle",
+      fontSize: 7.5,
+      fill: sc,
+      style: {
+        pointerEvents: "none"
+      }
+    }, n.status));
+  }), hiddenCount > 0 && /*#__PURE__*/React.createElement("text", {
+    x: W - 10,
+    y: H - 10,
+    textAnchor: "end",
+    fontSize: 8,
+    fill: "var(--tr)",
+    opacity: 0.6
+  }, hiddenCount, " secret", hiddenCount > 1 ? "s" : "", " hidden")));
+}
+
 // ── Modal Shell ───────────────────────────────────────────────────────────────
-function ModalShell(_ref3) {
+function ModalShell(_ref4) {
   let {
     onClose,
     children
-  } = _ref3;
+  } = _ref4;
   return /*#__PURE__*/React.createElement("div", {
     className: "mbg",
     onClick: e => {
@@ -551,17 +765,19 @@ function ModalShell(_ref3) {
 }
 
 // ── Character Modal ───────────────────────────────────────────────────────────
-function CharModal(_ref4) {
+function CharModal(_ref5) {
   let {
     form,
     setForm,
     onSave,
     onClose
-  } = _ref4;
-  const f = (k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+  } = _ref5;
+  const f = (k, v) => setForm(p => ({
+    ...p,
     [k]: v
   }));
-  const addRes = () => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+  const addRes = () => setForm(p => ({
+    ...p,
     resources: [...(p.resources || []), {
       id: uid(),
       name: "",
@@ -569,13 +785,16 @@ function CharModal(_ref4) {
       current: 0
     }]
   }));
-  const removeRes = id => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+  const removeRes = id => setForm(p => ({
+    ...p,
     resources: p.resources.filter(r => r.id !== id)
   }));
-  const upRes = (id, k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
-    resources: p.resources.map(r => r.id === id ? _objectSpread(_objectSpread({}, r), {}, {
+  const upRes = (id, k, v) => setForm(p => ({
+    ...p,
+    resources: p.resources.map(r => r.id === id ? {
+      ...r,
       [k]: v
-    }) : r)
+    } : r)
   }));
   const valid = (form.name || "").trim().length > 0;
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
@@ -704,14 +923,15 @@ function CharModal(_ref4) {
 }
 
 // ── Combat Modal ──────────────────────────────────────────────────────────────
-function CombatModal(_ref5) {
+function CombatModal(_ref6) {
   let {
     form,
     setForm,
     onSave,
     onClose
-  } = _ref5;
-  const f = (k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+  } = _ref6;
+  const f = (k, v) => setForm(p => ({
+    ...p,
     [k]: v
   }));
   const valid = (form.name || "").trim().length > 0;
@@ -804,14 +1024,15 @@ function CombatModal(_ref5) {
 }
 
 // ── NPC Modal ─────────────────────────────────────────────────────────────────
-function NPCModal(_ref6) {
+function NPCModal(_ref7) {
   let {
     form,
     setForm,
     onSave,
     onClose
-  } = _ref6;
-  const f = (k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+  } = _ref7;
+  const f = (k, v) => setForm(p => ({
+    ...p,
     [k]: v
   }));
   const valid = (form.name || "").trim().length > 0;
@@ -937,15 +1158,16 @@ function NPCModal(_ref6) {
 }
 
 // ── Location Modal ────────────────────────────────────────────────────────────
-function LocationModal(_ref7) {
+function LocationModal(_ref8) {
   let {
     form,
     setForm,
     onSave,
     onClose,
     onPickOnMap
-  } = _ref7;
-  const f = (k, v) => setForm(p => _objectSpread(_objectSpread({}, p), {}, {
+  } = _ref8;
+  const f = (k, v) => setForm(p => ({
+    ...p,
     [k]: v
   }));
   const valid = (form.name || "").trim().length > 0;
@@ -1024,7 +1246,7 @@ function LocationModal(_ref7) {
       fontSize: 10,
       color: hasPin ? "var(--tl2)" : "var(--tx3)"
     }
-  }, hasPin ? "".concat((+form.lat).toFixed(4), ", ").concat((+form.lng).toFixed(4)) : "No pin placed — defaults to city center")), /*#__PURE__*/React.createElement("button", {
+  }, hasPin ? `${(+form.lat).toFixed(4)}, ${(+form.lng).toFixed(4)}` : "No pin placed — defaults to city center")), /*#__PURE__*/React.createElement("button", {
     className: "btn bl",
     style: {
       flexShrink: 0,
@@ -1093,8 +1315,8 @@ function LocationModal(_ref7) {
   }, form.editId ? "Save Changes" : "Add Location")));
 }
 
-// ── Unlock Secrets Modal ─────────────────────────────────────────────────────
-function UnlockModal(_ref8) {
+// ── Unlock Modal ──────────────────────────────────────────────────────────────
+function UnlockModal(_ref9) {
   let {
     label,
     pass,
@@ -1102,7 +1324,7 @@ function UnlockModal(_ref8) {
     err,
     onUnlock,
     onClose
-  } = _ref8;
+  } = _ref9;
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "mtitle"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDD12 Unlock ", label, " Secrets"), /*#__PURE__*/React.createElement("button", {
@@ -1151,10 +1373,10 @@ function UnlockModal(_ref8) {
 }
 
 // ── Login Screen ──────────────────────────────────────────────────────────────
-function LoginScreen(_ref9) {
+function LoginScreen(_ref0) {
   let {
     onLogin
-  } = _ref9;
+  } = _ref0;
   const [pass, setPass] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
@@ -1168,7 +1390,7 @@ function LoginScreen(_ref9) {
         error
       } = await sb.from("campaign").select("passphrase").eq("id", "main").single();
       if (error || !data) {
-        setErr("Could not reach database. Check your Supabase URL/key.");
+        setErr("Could not reach database.");
         setLoading(false);
         return;
       }
@@ -1223,7 +1445,6 @@ function LoginScreen(_ref9) {
 
 // ── App ───────────────────────────────────────────────────────────────────────
 function App() {
-  var _groups$find;
   const [authed, setAuthed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -1233,69 +1454,89 @@ function App() {
   const [combatants, setCombatants] = useState([]);
   const [campaign, setCampaign] = useState({
     round: 1,
-    current_turn_id: null
+    current_turn_id: null,
+    world_date: "Day 1",
+    world_time: "12:00"
   });
   const [npcs, setNpcs] = useState([]);
   const [locations, setLocations] = useState([]);
   const [groups, setGroups] = useState([]);
   const [notes, setNotes] = useState([]);
+  const [npcLinks, setNpcLinks] = useState([]);
   const [activeNoteId, setActiveNoteId] = useState(null);
+
+  // UI state
   const [modal, setModal] = useState(null);
   const [charForm, setCharForm] = useState({});
   const [combatForm, setCombatForm] = useState({});
   const [npcForm, setNpcForm] = useState({});
   const [locForm, setLocForm] = useState({});
-  const [placingPin, setPlacingPin] = useState(false);
-  const [secretsUnlocked, setSecretsUnlocked] = useState(false);
-  const [unlockModal, setUnlockModal] = useState(null); // 'npcs' | 'locations'
-  const [unlockPass, setUnlockPass] = useState("");
-  const [unlockErr, setUnlockErr] = useState("");
   const [addResFor, setAddResFor] = useState(null);
   const [resForm, setResForm] = useState({});
+  const [placingPin, setPlacingPin] = useState(false);
+  const [secretsUnlocked, setSecretsUnlocked] = useState(false);
+  const [unlockModal, setUnlockModal] = useState(null);
+  const [unlockPass, setUnlockPass] = useState("");
+  const [unlockErr, setUnlockErr] = useState("");
   const [adjustVals, setAdjustVals] = useState({});
   const [condPicker, setCondPicker] = useState(null);
   const [editInitFor, setEditInitFor] = useState(null);
   const [npcExp, setNpcExp] = useState({});
-  const setAdj = (id, v) => setAdjustVals(a => _objectSpread(_objectSpread({}, a), {}, {
+
+  // Search / filter
+  const [partySearch, setPartySearch] = useState("");
+  const [npcSearch, setNpcSearch] = useState("");
+  const [npcRelFilter, setNpcRelFilter] = useState("All");
+  const [npcView, setNpcView] = useState("list");
+  const [locSearch, setLocSearch] = useState("");
+  const [locStatusFilter, setLocStatusFilter] = useState("All");
+
+  // Relationship web linking
+  const [linkMode, setLinkMode] = useState(false);
+  const [linkingFrom, setLinkingFrom] = useState(null);
+  const setAdj = (id, v) => setAdjustVals(a => ({
+    ...a,
     [id]: v
   }));
 
   // ── Load ──────────────────────────────────────────────────────────────────
   const loadAll = useCallback(async () => {
-    const [ch, cb, cp, np, lc, rg, rs, nt, th] = await Promise.all([sb.from("characters").select("*").order("sort_order"), sb.from("combatants").select("*").order("sort_order"), sb.from("campaign").select("*").eq("id", "main").single(), sb.from("npcs").select("*").order("sort_order"), sb.from("locations").select("*").order("sort_order"), sb.from("resource_groups").select("*").order("sort_order"), sb.from("resources").select("*").order("sort_order"), sb.from("notes").select("*").order("sort_order"), sb.from("theme").select("*").eq("id", "main").single()]);
-    if (ch.data) setParty(ch.data.map(c => _objectSpread(_objectSpread({}, c), {}, {
+    const [ch, cb, cp, np, lc, rg, rs, nt, th, nl] = await Promise.all([sb.from("characters").select("*").order("sort_order"), sb.from("combatants").select("*").order("sort_order"), sb.from("campaign").select("*").eq("id", "main").single(), sb.from("npcs").select("*").order("sort_order"), sb.from("locations").select("*").order("sort_order"), sb.from("resource_groups").select("*").order("sort_order"), sb.from("resources").select("*").order("sort_order"), sb.from("notes").select("*").order("sort_order"), sb.from("theme").select("*").eq("id", "main").single(), sb.from("npc_links").select("*").order("sort_order")]);
+    if (ch.data) setParty(ch.data.map(c => ({
+      ...c,
       conditions: c.conditions || [],
       resources: c.resources || []
     })));
-    if (cb.data) setCombatants(cb.data.map(c => _objectSpread(_objectSpread({}, c), {}, {
+    if (cb.data) setCombatants(cb.data.map(c => ({
+      ...c,
       conditions: c.conditions || []
     })));
     if (cp.data) setCampaign(cp.data);
     if (np.data) setNpcs(np.data);
     if (lc.data) setLocations(lc.data);
-    if (rg.data && rs.data) {
-      setGroups(rg.data.map(g => _objectSpread(_objectSpread({}, g), {}, {
-        resources: rs.data.filter(r => r.group_id === g.id)
-      })));
-    }
+    if (rg.data && rs.data) setGroups(rg.data.map(g => ({
+      ...g,
+      resources: rs.data.filter(r => r.group_id === g.id)
+    })));
     if (nt.data) {
       setNotes(nt.data);
-      setActiveNoteId(id => {
-        var _nt$data$0$id, _nt$data$;
-        return id || ((_nt$data$0$id = (_nt$data$ = nt.data[0]) === null || _nt$data$ === void 0 ? void 0 : _nt$data$.id) !== null && _nt$data$0$id !== void 0 ? _nt$data$0$id : null);
-      });
+      setActiveNoteId(id => id || (nt.data[0]?.id ?? null));
     }
     if (th.data) {
-      const merged = _objectSpread(_objectSpread({}, DEFAULT_THEME), th.data);
-      setTheme(merged);
-      applyTheme(merged);
+      const m = {
+        ...DEFAULT_THEME,
+        ...th.data
+      };
+      setTheme(m);
+      applyTheme(m);
     }
+    if (nl.data) setNpcLinks(nl.data);
   }, []);
   useEffect(() => {
     if (!authed) return;
     setLoading(true);
     loadAll().finally(() => setLoading(false));
-    const channels = ["characters", "combatants", "campaign", "npcs", "locations", "resource_groups", "resources", "notes", "theme"].map(table => sb.channel("rt_".concat(table)).on("postgres_changes", {
+    const channels = ["characters", "combatants", "campaign", "npcs", "locations", "resource_groups", "resources", "notes", "theme", "npc_links"].map(table => sb.channel(`rt_${table}`).on("postgres_changes", {
       event: "*",
       schema: "public",
       table
@@ -1313,7 +1554,6 @@ function App() {
 
   // ── Party ops ─────────────────────────────────────────────────────────────
   const saveChar = () => sync(async () => {
-    var _existing$sort_order;
     const existing = party.find(x => x.id === charForm.editId);
     const row = {
       id: charForm.editId || uid(),
@@ -1321,11 +1561,11 @@ function App() {
       class: charForm.cls || "",
       level: +charForm.level || 1,
       max_hp: +charForm.maxHp || 10,
-      current_hp: charForm.editId ? Math.min((existing === null || existing === void 0 ? void 0 : existing.current_hp) || 10, +charForm.maxHp || 10) : +charForm.maxHp || 10,
+      current_hp: charForm.editId ? Math.min(existing?.current_hp || 10, +charForm.maxHp || 10) : +charForm.maxHp || 10,
       ac: +charForm.ac || 10,
-      conditions: (existing === null || existing === void 0 ? void 0 : existing.conditions) || [],
+      conditions: existing?.conditions || [],
       resources: (charForm.resources || []).filter(r => r.name.trim()),
-      sort_order: charForm.editId ? (_existing$sort_order = existing === null || existing === void 0 ? void 0 : existing.sort_order) !== null && _existing$sort_order !== void 0 ? _existing$sort_order : 0 : party.length
+      sort_order: charForm.editId ? existing?.sort_order ?? 0 : party.length
     };
     await sb.from("characters").upsert(row);
     setModal(null);
@@ -1357,11 +1597,12 @@ function App() {
     const res = (char.resources || []).find(r => r.id === resId);
     if (!res) return;
     const n = pipIdx < res.current ? pipIdx : pipIdx + 1;
-    const newResources = char.resources.map(r => r.id === resId ? _objectSpread(_objectSpread({}, r), {}, {
+    const newRes = char.resources.map(r => r.id === resId ? {
+      ...r,
       current: clamp(n, 0, r.max)
-    }) : r);
+    } : r);
     await sb.from("characters").update({
-      resources: newResources
+      resources: newRes
     }).eq("id", charId);
   });
   const delChar = id => sync(async () => {
@@ -1386,20 +1627,17 @@ function App() {
     const {
       data
     } = await sb.from("combatants").insert(row).select().single();
-    if (!campaign.current_turn_id && data) {
-      await sb.from("campaign").update({
-        current_turn_id: data.id
-      }).eq("id", "main");
-    }
+    if (!campaign.current_turn_id && data) await sb.from("campaign").update({
+      current_turn_id: data.id
+    }).eq("id", "main");
     setModal(null);
   });
   const delCombatant = id => sync(async () => {
     await sb.from("combatants").delete().eq("id", id);
     if (campaign.current_turn_id === id) {
-      var _remaining$;
       const remaining = combatants.filter(c => c.id !== id && c.alive).sort((a, b) => b.initiative - a.initiative);
       await sb.from("campaign").update({
-        current_turn_id: ((_remaining$ = remaining[0]) === null || _remaining$ === void 0 ? void 0 : _remaining$.id) || null
+        current_turn_id: remaining[0]?.id || null
       }).eq("id", "main");
     }
   });
@@ -1410,12 +1648,11 @@ function App() {
       wrapped = false,
       tries = 0;
     while (tries < sorted.length) {
-      var _sorted$nx;
       if (nx >= sorted.length) {
         nx = 0;
         wrapped = true;
       }
-      if ((_sorted$nx = sorted[nx]) !== null && _sorted$nx !== void 0 && _sorted$nx.alive) {
+      if (sorted[nx]?.alive) {
         const upd = {
           current_turn_id: sorted[nx].id
         };
@@ -1459,7 +1696,6 @@ function App() {
 
   // ── NPC ops ───────────────────────────────────────────────────────────────
   const saveNPC = () => sync(async () => {
-    var _npcs$find$sort_order, _npcs$find;
     const row = {
       id: npcForm.editId || uid(),
       name: (npcForm.name || "").trim() || "Unknown",
@@ -1468,7 +1704,7 @@ function App() {
       one_liner: npcForm.oneLiner || "",
       notes: npcForm.notes || "",
       secret: !!npcForm.secret,
-      sort_order: npcForm.editId ? (_npcs$find$sort_order = (_npcs$find = npcs.find(n => n.id === npcForm.editId)) === null || _npcs$find === void 0 ? void 0 : _npcs$find.sort_order) !== null && _npcs$find$sort_order !== void 0 ? _npcs$find$sort_order : 0 : npcs.length
+      sort_order: npcForm.editId ? npcs.find(n => n.id === npcForm.editId)?.sort_order ?? 0 : npcs.length
     };
     await sb.from("npcs").upsert(row);
     setModal(null);
@@ -1477,9 +1713,32 @@ function App() {
     await sb.from("npcs").delete().eq("id", id);
   });
 
+  // ── NPC Link ops ──────────────────────────────────────────────────────────
+  const addLink = (sourceId, targetId) => {
+    const label = window.prompt("Relationship label (e.g. rivals, siblings, allies):");
+    if (label === null) {
+      setLinkingFrom(null);
+      setLinkMode(false);
+      return;
+    }
+    sync(async () => {
+      await sb.from("npc_links").insert({
+        id: uid(),
+        source_id: sourceId,
+        target_id: targetId,
+        label: label.trim(),
+        sort_order: npcLinks.length
+      });
+      setLinkingFrom(null);
+      setLinkMode(false);
+    });
+  };
+  const delLink = id => sync(async () => {
+    await sb.from("npc_links").delete().eq("id", id);
+  });
+
   // ── Location ops ──────────────────────────────────────────────────────────
   const saveLoc = () => sync(async () => {
-    var _locations$find$sort_, _locations$find;
     const row = {
       id: locForm.editId || uid(),
       name: (locForm.name || "").trim() || "Unknown",
@@ -1489,7 +1748,7 @@ function App() {
       secret: !!locForm.secret,
       lat: locForm.lat ? +locForm.lat : 33.4484,
       lng: locForm.lng ? +locForm.lng : -112.0740,
-      sort_order: locForm.editId ? (_locations$find$sort_ = (_locations$find = locations.find(l => l.id === locForm.editId)) === null || _locations$find === void 0 ? void 0 : _locations$find.sort_order) !== null && _locations$find$sort_ !== void 0 ? _locations$find$sort_ : 0 : locations.length
+      sort_order: locForm.editId ? locations.find(l => l.id === locForm.editId)?.sort_order ?? 0 : locations.length
     };
     await sb.from("locations").upsert(row);
     setModal(null);
@@ -1501,7 +1760,7 @@ function App() {
   // ── Resource ops ──────────────────────────────────────────────────────────
   const addGroup = async () => {
     const name = window.prompt("Source name (e.g. 'Shadow Serpent', 'Ancient Lair'):");
-    if (!(name !== null && name !== void 0 && name.trim())) return;
+    if (!name?.trim()) return;
     await sync(async () => {
       await sb.from("resource_groups").insert({
         id: uid(),
@@ -1515,7 +1774,6 @@ function App() {
     await sb.from("resource_groups").delete().eq("id", id);
   });
   const saveRes = () => sync(async () => {
-    var _grp$resources;
     if (!(resForm.name || "").trim()) return;
     const grp = groups.find(g => g.id === addResFor);
     await sb.from("resources").insert({
@@ -1524,7 +1782,7 @@ function App() {
       name: resForm.name.trim(),
       max_pips: parseInt(resForm.max) || 3,
       current_pips: 0,
-      sort_order: (grp === null || grp === void 0 || (_grp$resources = grp.resources) === null || _grp$resources === void 0 ? void 0 : _grp$resources.length) || 0
+      sort_order: grp?.resources?.length || 0
     });
     setAddResFor(null);
     setResForm({});
@@ -1534,10 +1792,9 @@ function App() {
   });
   const toggleRpip = (groupId, resId, pipIdx) => sync(async () => {
     const grp = groups.find(g => g.id === groupId);
-    const res = grp === null || grp === void 0 ? void 0 : grp.resources.find(r => r.id === resId);
+    const res = grp?.resources.find(r => r.id === resId);
     if (!res) return;
-    const cur = res.current_pips || 0;
-    const n = pipIdx < cur ? pipIdx : pipIdx + 1;
+    const n = pipIdx < (res.current_pips || 0) ? pipIdx : pipIdx + 1;
     await sb.from("resources").update({
       current_pips: clamp(n, 0, res.max_pips || 3)
     }).eq("id", resId);
@@ -1557,22 +1814,21 @@ function App() {
       id,
       title: "New Page",
       content: "",
-      page_date: "Session ".concat(notes.length + 1),
+      page_date: `Session ${notes.length + 1}`,
       sort_order: notes.length
     });
     setActiveNoteId(id);
   });
   const delNote = id => sync(async () => {
-    var _notes$find;
     await sb.from("notes").delete().eq("id", id);
-    if (activeNoteId === id) setActiveNoteId(((_notes$find = notes.find(n => n.id !== id)) === null || _notes$find === void 0 ? void 0 : _notes$find.id) || null);
+    if (activeNoteId === id) setActiveNoteId(notes.find(n => n.id !== id)?.id || null);
   });
-  // Debounced note update
   const noteTimers = useRef({});
   const updateNote = (id, key, val) => {
-    setNotes(p => p.map(n => n.id === id ? _objectSpread(_objectSpread({}, n), {}, {
+    setNotes(p => p.map(n => n.id === id ? {
+      ...n,
       [key]: val
-    }) : n));
+    } : n));
     clearTimeout(noteTimers.current[id + key]);
     noteTimers.current[id + key] = setTimeout(async () => {
       await sb.from("notes").update({
@@ -1581,19 +1837,40 @@ function App() {
     }, 600);
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const npcRelOptions = ["All", ...new Set(npcs.filter(n => n.relationship).map(n => n.relationship))];
+  const filteredParty = party.filter(c => {
+    if (!partySearch) return true;
+    const q = partySearch.toLowerCase();
+    return c.name.toLowerCase().includes(q) || (c.class || "").toLowerCase().includes(q);
+  });
+  const filteredNpcs = npcs.filter(n => {
+    if (npcSearch && !n.name.toLowerCase().includes(npcSearch.toLowerCase()) && !(n.one_liner || "").toLowerCase().includes(npcSearch.toLowerCase())) return false;
+    if (npcRelFilter !== "All" && n.relationship !== npcRelFilter) return false;
+    return true;
+  });
+  const filteredLocs = locations.filter(l => {
+    if (locSearch) {
+      const q = locSearch.toLowerCase();
+      if (!l.name.toLowerCase().includes(q) && !(l.district || "").toLowerCase().includes(q) && !(l.description || "").toLowerCase().includes(q)) return false;
+    }
+    if (locStatusFilter !== "All" && l.status !== locStatusFilter) return false;
+    return true;
+  });
+
+  // ── BG ────────────────────────────────────────────────────────────────────
   const BG = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "stars"
   }, STARS.map(s => /*#__PURE__*/React.createElement("div", {
     key: s.id,
     className: "star",
     style: {
-      left: "".concat(s.x, "%"),
-      top: "".concat(s.y, "%"),
+      left: `${s.x}%`,
+      top: `${s.y}%`,
       width: s.s,
       height: s.s,
-      animation: "twinkle ".concat(s.d, "s ease-in-out infinite"),
-      animationDelay: "".concat(s.dl, "s")
+      animation: `twinkle ${s.d}s ease-in-out infinite`,
+      animationDelay: `${s.dl}s`
     }
   }))), /*#__PURE__*/React.createElement("div", {
     className: "veil",
@@ -1689,11 +1966,96 @@ function App() {
     className: "h-title"
   }, theme.campaign_name || "Valley of the Sun II"), /*#__PURE__*/React.createElement("div", {
     className: "h-sub"
-  }, theme.campaign_subtitle || "Phoenix · Beneath the Veil")), /*#__PURE__*/React.createElement("div", {
+  }, theme.campaign_subtitle || "Phoenix · Beneath the Veil"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      marginTop: 8,
+      position: "relative",
+      zIndex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 6,
+      background: "var(--bg2)",
+      border: "1px solid var(--bd2)",
+      padding: "4px 12px",
+      borderRadius: 2
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 8,
+      color: "var(--tx3)",
+      letterSpacing: 1
+    }
+  }, "\uD83D\uDCC5"), /*#__PURE__*/React.createElement("input", {
+    style: {
+      background: "transparent",
+      border: "none",
+      outline: "none",
+      fontSize: 10,
+      fontWeight: 600,
+      letterSpacing: 1.5,
+      color: "var(--gd)",
+      fontFamily: "'Barlow Condensed',sans-serif",
+      textTransform: "uppercase",
+      width: 64,
+      textAlign: "center"
+    },
+    value: campaign.world_date || "Day 1",
+    onChange: e => setCampaign(c => ({
+      ...c,
+      world_date: e.target.value
+    })),
+    onBlur: async e => {
+      await sync(async () => {
+        await sb.from("campaign").update({
+          world_date: e.target.value
+        }).eq("id", "main");
+      });
+    },
+    title: "In-world date \u2014 click to edit"
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "var(--bd2)",
+      fontSize: 10,
+      userSelect: "none"
+    }
+  }, "\xB7"), /*#__PURE__*/React.createElement("input", {
+    style: {
+      background: "transparent",
+      border: "none",
+      outline: "none",
+      fontSize: 10,
+      fontWeight: 600,
+      letterSpacing: 1.5,
+      color: "var(--tx2)",
+      fontFamily: "'Barlow Condensed',sans-serif",
+      width: 42,
+      textAlign: "center"
+    },
+    value: campaign.world_time || "12:00",
+    onChange: e => setCampaign(c => ({
+      ...c,
+      world_time: e.target.value
+    })),
+    onBlur: async e => {
+      await sync(async () => {
+        await sb.from("campaign").update({
+          world_time: e.target.value
+        }).eq("id", "main");
+      });
+    },
+    title: "In-world time \u2014 click to edit"
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "tabs"
   }, TABS.map(t => /*#__PURE__*/React.createElement("button", {
     key: t.id,
-    className: "tab ".concat(tab === t.id ? "on" : ""),
+    className: `tab ${tab === t.id ? "on" : ""}`,
     onClick: () => setTab(t.id)
   }, t.label))), /*#__PURE__*/React.createElement("div", {
     className: "main"
@@ -1710,15 +2072,34 @@ function App() {
       setModal("char");
     }
   }, "+ Add Character")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 12,
+      display: "flex",
+      gap: 6,
+      alignItems: "center",
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    style: {
+      maxWidth: 260
+    },
+    placeholder: "\uD83D\uDD0D Search by name or class...",
+    value: partySearch,
+    onChange: e => setPartySearch(e.target.value)
+  }), partySearch && /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: () => setPartySearch("")
+  }, "\u2715 Clear")), /*#__PURE__*/React.createElement("div", {
     className: "pgrid"
-  }, party.map(c => {
+  }, filteredParty.map(c => {
     const p = hpPct(c.current_hp, c.max_hp);
     const isDown = c.current_hp <= 0;
     const adjVal = adjustVals[c.id] || "";
     const showPicker = condPicker === c.id;
     return /*#__PURE__*/React.createElement("div", {
       key: c.id,
-      className: "card".concat(isDown ? " dn" : "")
+      className: `card${isDown ? " dn" : ""}`
     }, /*#__PURE__*/React.createElement("div", {
       className: "cardt"
     }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -1742,7 +2123,7 @@ function App() {
     }, /*#__PURE__*/React.createElement("div", {
       className: "hpfill",
       style: {
-        width: "".concat(p * 100, "%"),
+        width: `${p * 100}%`,
         background: hpCol(p)
       }
     })), /*#__PURE__*/React.createElement("div", {
@@ -1841,7 +2222,7 @@ function App() {
       const a = c.conditions.includes(cnd);
       return /*#__PURE__*/React.createElement("span", {
         key: cnd,
-        className: "chip".concat(a ? " ac" : ""),
+        className: `chip${a ? " ac" : ""}`,
         onClick: () => toggleCond(c.id, cnd, true)
       }, cnd);
     }))), (c.resources || []).length > 0 && /*#__PURE__*/React.createElement("div", {
@@ -1857,7 +2238,7 @@ function App() {
       length: r.max
     }, (_, i) => /*#__PURE__*/React.createElement("div", {
       key: i,
-      className: "pip".concat(i < r.current ? " on" : ""),
+      className: `pip${i < r.current ? " on" : ""}`,
       onClick: () => togglePip(c.id, r.id, i)
     })))))), /*#__PURE__*/React.createElement("div", {
       className: "cfoot"
@@ -1871,7 +2252,9 @@ function App() {
           level: c.level,
           maxHp: c.max_hp,
           ac: c.ac,
-          resources: (c.resources || []).map(r => _objectSpread({}, r))
+          resources: (c.resources || []).map(r => ({
+            ...r
+          }))
         });
         setModal("char");
       }
@@ -1958,7 +2341,7 @@ function App() {
         flexDirection: "column"
       }
     }, /*#__PURE__*/React.createElement("div", {
-      className: "irow".concat(isCur ? " cur" : "").concat(!c.alive ? " dead" : "")
+      className: `irow${isCur ? " cur" : ""}${!c.alive ? " dead" : ""}`
     }, /*#__PURE__*/React.createElement("div", {
       className: "inum-wrap"
     }, editInitFor === c.id ? /*#__PURE__*/React.createElement("input", {
@@ -1978,16 +2361,16 @@ function App() {
     }, /*#__PURE__*/React.createElement("div", {
       className: "iname"
     }, c.name), /*#__PURE__*/React.createElement("div", {
-      className: "ibadge".concat(c.is_player ? " pc" : "")
+      className: `ibadge${c.is_player ? " pc" : ""}`
     }, c.is_player ? "Player Character" : "NPC / Monster"), c.conditions.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "iconds"
     }, c.conditions.map(cnd => /*#__PURE__*/React.createElement("span", {
       key: cnd,
       className: "ichip",
       style: {
-        background: "".concat(CC[cnd], "28"),
+        background: `${CC[cnd]}28`,
         color: CC[cnd],
-        border: "1px solid ".concat(CC[cnd], "60")
+        border: `1px solid ${CC[cnd]}60`
       }
     }, cnd)))), /*#__PURE__*/React.createElement("div", {
       className: "chp"
@@ -1996,7 +2379,7 @@ function App() {
     }, /*#__PURE__*/React.createElement("div", {
       className: "hpfill",
       style: {
-        width: "".concat(p * 100, "%"),
+        width: `${p * 100}%`,
         background: hpCol(p)
       }
     })), /*#__PURE__*/React.createElement("div", {
@@ -2059,7 +2442,7 @@ function App() {
       const a = c.conditions.includes(cnd);
       return /*#__PURE__*/React.createElement("span", {
         key: cnd,
-        className: "chip".concat(a ? " ac" : ""),
+        className: `chip${a ? " ac" : ""}`,
         onClick: () => toggleCond(c.id, cnd, false)
       }, cnd);
     })));
@@ -2071,7 +2454,8 @@ function App() {
     style: {
       display: "flex",
       gap: 6,
-      alignItems: "center"
+      alignItems: "center",
+      flexWrap: "wrap"
     }
   }, npcs.some(n => n.secret) && !secretsUnlocked && /*#__PURE__*/React.createElement("button", {
     className: "btn bx",
@@ -2092,12 +2476,78 @@ function App() {
     },
     onClick: () => setSecretsUnlocked(false)
   }, "\uD83D\uDD13 Lock Secrets"), /*#__PURE__*/React.createElement("button", {
+    className: `btn ${npcView === "list" ? "bl" : "bx"}`,
+    onClick: () => setNpcView("list")
+  }, "\u2630 List"), /*#__PURE__*/React.createElement("button", {
+    className: `btn ${npcView === "web" ? "bl" : "bx"}`,
+    onClick: () => {
+      setNpcView("web");
+      setLinkMode(false);
+      setLinkingFrom(null);
+    }
+  }, "\uD83D\uDD78 Web"), /*#__PURE__*/React.createElement("button", {
     className: "btn bt",
     onClick: () => {
       setNpcForm({});
       setModal("npc");
     }
-  }, "+ Add NPC"))), npcs.length === 0 && /*#__PURE__*/React.createElement("div", {
+  }, "+ Add NPC"))), npcView === "list" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 12,
+      display: "flex",
+      gap: 6,
+      alignItems: "center",
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    style: {
+      maxWidth: 220
+    },
+    placeholder: "\uD83D\uDD0D Search NPCs...",
+    value: npcSearch,
+    onChange: e => setNpcSearch(e.target.value)
+  }), /*#__PURE__*/React.createElement("select", {
+    className: "fsel",
+    style: {
+      maxWidth: 180
+    },
+    value: npcRelFilter,
+    onChange: e => setNpcRelFilter(e.target.value)
+  }, npcRelOptions.map(r => /*#__PURE__*/React.createElement("option", {
+    key: r,
+    value: r
+  }, r === "All" ? "All Relationships" : r))), (npcSearch || npcRelFilter !== "All") && /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: () => {
+      setNpcSearch("");
+      setNpcRelFilter("All");
+    }
+  }, "\u2715 Clear")), npcView === "web" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 8,
+      display: "flex",
+      gap: 6,
+      alignItems: "center",
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: `btn ${linkMode ? "bt" : "bx"}`,
+    onClick: () => {
+      if (linkMode) {
+        setLinkMode(false);
+        setLinkingFrom(null);
+      } else {
+        setLinkMode(true);
+        setLinkingFrom(null);
+      }
+    }
+  }, linkMode ? "✕ Cancel Linking" : "🔗 Link NPCs"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      color: "var(--tx3)"
+    }
+  }, linkMode ? linkingFrom ? "Click a second NPC to connect" : "Click an NPC node to start a link" : "Click a node to edit · Hover a link line to remove")), npcs.length === 0 && /*#__PURE__*/React.createElement("div", {
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "ei"
@@ -2111,9 +2561,31 @@ function App() {
       setNpcForm({});
       setModal("npc");
     }
-  }, "+ Add NPC")), /*#__PURE__*/React.createElement("div", {
+  }, "+ Add NPC")), npcView === "web" && npcs.length > 0 && /*#__PURE__*/React.createElement(RelationshipView, {
+    npcs: npcs,
+    npcLinks: npcLinks,
+    secretsUnlocked: secretsUnlocked,
+    campaignName: theme.campaign_name,
+    linkMode: linkMode,
+    linkingFrom: linkingFrom,
+    setLinkingFrom: setLinkingFrom,
+    onNpcClick: n => {
+      setNpcForm({
+        editId: n.id,
+        name: n.name,
+        status: n.status,
+        relationship: n.relationship,
+        oneLiner: n.one_liner,
+        notes: n.notes,
+        secret: !!n.secret
+      });
+      setModal("npc");
+    },
+    onAddLink: addLink,
+    onDelLink: delLink
+  }), npcView === "list" && /*#__PURE__*/React.createElement("div", {
     className: "npc-grid"
-  }, npcs.map(n => {
+  }, filteredNpcs.map(n => {
     const sc = NSC[n.status] || "#706860";
     const exp = npcExp[n.id];
     const isLocked = n.secret && !secretsUnlocked;
@@ -2225,7 +2697,8 @@ function App() {
       onClick: () => delNPC(n.id)
     }, "\u2715")), n.notes && /*#__PURE__*/React.createElement("button", {
       className: "nnotes-toggle",
-      onClick: () => setNpcExp(e => _objectSpread(_objectSpread({}, e), {}, {
+      onClick: () => setNpcExp(e => ({
+        ...e,
         [n.id]: !e[n.id]
       }))
     }, exp ? "▲ Notes" : "▼ Notes")), exp && n.notes && /*#__PURE__*/React.createElement("div", {
@@ -2239,7 +2712,8 @@ function App() {
     style: {
       display: "flex",
       gap: 6,
-      alignItems: "center"
+      alignItems: "center",
+      flexWrap: "wrap"
     }
   }, locations.some(l => l.secret) && !secretsUnlocked && /*#__PURE__*/React.createElement("button", {
     className: "btn bx",
@@ -2266,6 +2740,40 @@ function App() {
       setModal("loc");
     }
   }, "+ Add Location"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 12,
+      display: "flex",
+      gap: 6,
+      alignItems: "center",
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    className: "fi",
+    style: {
+      maxWidth: 220
+    },
+    placeholder: "\uD83D\uDD0D Search locations...",
+    value: locSearch,
+    onChange: e => setLocSearch(e.target.value)
+  }), /*#__PURE__*/React.createElement("select", {
+    className: "fsel",
+    style: {
+      maxWidth: 160
+    },
+    value: locStatusFilter,
+    onChange: e => setLocStatusFilter(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "All"
+  }, "All Statuses"), LOC_STATUSES.map(s => /*#__PURE__*/React.createElement("option", {
+    key: s,
+    value: s
+  }, s))), (locSearch || locStatusFilter !== "All") && /*#__PURE__*/React.createElement("button", {
+    className: "btn bx",
+    onClick: () => {
+      setLocSearch("");
+      setLocStatusFilter("All");
+    }
+  }, "\u2715 Clear")), /*#__PURE__*/React.createElement("div", {
     className: "map-container"
   }, /*#__PURE__*/React.createElement("div", {
     className: "map-label"
@@ -2308,14 +2816,15 @@ function App() {
     placingPin: placingPin,
     onMapClick: ll => {
       if (!placingPin) return;
-      setLocForm(f => _objectSpread(_objectSpread({}, f), {}, {
+      setLocForm(f => ({
+        ...f,
         lat: ll.lat.toFixed(5),
         lng: ll.lng.toFixed(5)
       }));
       setPlacingPin(false);
       setModal("loc");
     }
-  })), locations.length === 0 && /*#__PURE__*/React.createElement("div", {
+  })), filteredLocs.length === 0 && locations.length === 0 && /*#__PURE__*/React.createElement("div", {
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "ei"
@@ -2331,7 +2840,7 @@ function App() {
     }
   }, "+ Add Location")), /*#__PURE__*/React.createElement("div", {
     className: "loc-grid"
-  }, locations.map(l => {
+  }, filteredLocs.map(l => {
     const sc = LSC[l.status] || "#706860";
     const isLocked = l.secret && !secretsUnlocked;
     if (isLocked) return /*#__PURE__*/React.createElement("div", {
@@ -2468,7 +2977,7 @@ function App() {
     className: "rg-header",
     onClick: () => toggleCollapse(g.id)
   }, /*#__PURE__*/React.createElement("span", {
-    className: "rg-arrow".concat(!g.collapsed ? " open" : "")
+    className: `rg-arrow${!g.collapsed ? " open" : ""}`
   }, "\u25B6"), /*#__PURE__*/React.createElement("span", {
     className: "rg-title"
   }, g.source_name), /*#__PURE__*/React.createElement("span", {
@@ -2504,7 +3013,7 @@ function App() {
     length: r.max_pips || 3
   }, (_, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
-    className: "rpip".concat(i < (r.current_pips || 0) ? " on" : ""),
+    className: `rpip${i < (r.current_pips || 0) ? " on" : ""}`,
     onClick: () => toggleRpip(g.id, r.id, i)
   }))), /*#__PURE__*/React.createElement("span", {
     style: {
@@ -2550,7 +3059,7 @@ function App() {
     }
   }, "No pages yet."), notes.map(n => /*#__PURE__*/React.createElement("div", {
     key: n.id,
-    className: "note-item".concat(n.id === activeNoteId ? " on" : ""),
+    className: `note-item${n.id === activeNoteId ? " on" : ""}`,
     onClick: () => setActiveNoteId(n.id)
   }, /*#__PURE__*/React.createElement("div", null, n.title || "Untitled"), /*#__PURE__*/React.createElement("div", {
     className: "note-date"
@@ -2601,7 +3110,7 @@ function App() {
       background: "var(--bg2)",
       border: "1px solid var(--bd)",
       padding: 16,
-      marginBottom: 16,
+      marginBottom: 14,
       clipPath: "polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px))"
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -2626,7 +3135,8 @@ function App() {
     className: "fi",
     value: theme.campaign_name || "",
     placeholder: "Campaign name...",
-    onChange: e => setTheme(t => _objectSpread(_objectSpread({}, t), {}, {
+    onChange: e => setTheme(t => ({
+      ...t,
       campaign_name: e.target.value
     })),
     onBlur: async e => {
@@ -2644,7 +3154,8 @@ function App() {
     className: "fi",
     value: theme.campaign_subtitle || "",
     placeholder: "Setting, location, tagline...",
-    onChange: e => setTheme(t => _objectSpread(_objectSpread({}, t), {}, {
+    onChange: e => setTheme(t => ({
+      ...t,
       campaign_subtitle: e.target.value
     })),
     onBlur: async e => {
@@ -2659,7 +3170,7 @@ function App() {
       background: "var(--bg2)",
       border: "1px solid var(--bd)",
       padding: 16,
-      marginBottom: 16,
+      marginBottom: 14,
       clipPath: "polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px))"
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -2682,8 +3193,14 @@ function App() {
     return /*#__PURE__*/React.createElement("div", {
       key: p.id,
       onClick: async () => {
-        const merged = _objectSpread({}, p);
-        setTheme(t => _objectSpread(_objectSpread({}, t), merged));
+        const merged = {
+          ...p,
+          text_scale: theme.text_scale || 1
+        };
+        setTheme(t => ({
+          ...t,
+          ...merged
+        }));
         applyTheme(merged);
         await sync(async () => {
           await sb.from("theme").update({
@@ -2708,11 +3225,10 @@ function App() {
         cursor: "pointer",
         borderRadius: 2,
         border: "1px solid " + (isActive ? "var(--tr)" : "var(--bd2)"),
-        background: isActive ? "rgba(var(--tr-raw),.06)" : "var(--bg3)",
+        background: isActive ? "rgba(196,98,45,.06)" : "var(--bg3)",
         transition: "all .15s",
-        position: "relative",
         outline: isActive ? "1px solid var(--tr)" : "none",
-        outlineOffset: isActive ? -1 : 0
+        outlineOffset: -1
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -2733,7 +3249,7 @@ function App() {
         flex: 3,
         height: 6,
         background: p.color_bg,
-        border: "1px solid " + p.bd2,
+        border: "1px solid " + (p.bd2 || "#333"),
         borderRadius: 1
       }
     })), /*#__PURE__*/React.createElement("div", {
@@ -2812,11 +3328,11 @@ function App() {
   }, {
     key: "color_tx",
     label: "Text Color"
-  }].map(_ref0 => {
+  }].map(_ref1 => {
     let {
       key,
       label
-    } = _ref0;
+    } = _ref1;
     return /*#__PURE__*/React.createElement("div", {
       key: key,
       className: "fgg"
@@ -2842,11 +3358,12 @@ function App() {
         flexShrink: 0
       },
       onChange: e => {
-        const val = e.target.value;
+        const v = e.target.value;
         setTheme(t => {
-          const u = _objectSpread(_objectSpread({}, t), {}, {
-            [key]: val
-          });
+          const u = {
+            ...t,
+            [key]: v
+          };
           applyTheme(u);
           return u;
         });
@@ -2868,27 +3385,110 @@ function App() {
         letterSpacing: .5
       },
       onChange: e => {
-        const val = e.target.value;
+        const v = e.target.value;
         setTheme(t => {
-          const u = _objectSpread(_objectSpread({}, t), {}, {
-            [key]: val
-          });
-          if (/^#[0-9A-Fa-f]{6}$/.test(val)) applyTheme(u);
+          const u = {
+            ...t,
+            [key]: v
+          };
+          if (/^#[0-9A-Fa-f]{6}$/.test(v)) applyTheme(u);
           return u;
         });
       },
       onBlur: async e => {
-        const val = e.target.value;
-        if (!/^#[0-9A-Fa-f]{6}$/.test(val)) return;
+        const v = e.target.value;
+        if (!/^#[0-9A-Fa-f]{6}$/.test(v)) return;
         await sync(async () => {
           await sb.from("theme").update({
-            [key]: val,
+            [key]: v,
             preset: "custom"
           }).eq("id", "main");
         });
       }
     })));
   })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 16,
+      paddingTop: 14,
+      borderTop: "1px solid var(--bd)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      letterSpacing: 3,
+      textTransform: "uppercase",
+      color: "var(--tx3)",
+      marginBottom: 10
+    }
+  }, "\u25C6 Text Scale"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: "var(--tx3)",
+      minWidth: 14
+    }
+  }, "A"), /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: 0.8,
+    max: 1.4,
+    step: 0.05,
+    value: theme.text_scale || 1,
+    style: {
+      flex: 1,
+      accentColor: "var(--tr)"
+    },
+    onChange: e => {
+      const s = parseFloat(e.target.value);
+      setTheme(t => ({
+        ...t,
+        text_scale: s
+      }));
+      document.documentElement.style.zoom = s;
+    },
+    onMouseUp: async e => {
+      const s = parseFloat(e.target.value);
+      await sync(async () => {
+        await sb.from("theme").update({
+          text_scale: s
+        }).eq("id", "main");
+      });
+    },
+    onTouchEnd: async e => {
+      const s = parseFloat(e.target.value);
+      await sync(async () => {
+        await sb.from("theme").update({
+          text_scale: s
+        }).eq("id", "main");
+      });
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 16,
+      color: "var(--tx3)",
+      minWidth: 14,
+      textAlign: "right"
+    }
+  }, "A"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: "var(--gd)",
+      minWidth: 38,
+      fontWeight: 700,
+      textAlign: "right"
+    }
+  }, Math.round((theme.text_scale || 1) * 100), "%")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "var(--tx3)",
+      marginTop: 6
+    }
+  }, "Adjusts all text and UI element sizes proportionally. Good for phone screens.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 12,
       paddingTop: 10,
@@ -2901,11 +3501,19 @@ function App() {
     className: "btn bx",
     onClick: async () => {
       const base = PRESETS.find(p => p.id === "desert-night");
-      setTheme(t => _objectSpread(_objectSpread({}, t), base));
-      applyTheme(base);
+      const reset = {
+        ...base,
+        text_scale: 1
+      };
+      setTheme(t => ({
+        ...t,
+        ...reset
+      }));
+      applyTheme(reset);
       await sync(async () => {
         await sb.from("theme").update({
           preset: "desert-night",
+          text_scale: 1,
           color_primary: base.color_primary,
           color_secondary: base.color_secondary,
           color_tertiary: base.color_tertiary,
@@ -2922,7 +3530,7 @@ function App() {
       });
     }
   }, "\u21BA Reset to Default")))))), /*#__PURE__*/React.createElement("div", {
-    className: "sync".concat(syncing ? " active" : "")
+    className: `sync${syncing ? " active" : ""}`
   }, syncing ? "● Syncing..." : "◆ Live"), modal && /*#__PURE__*/React.createElement(ModalShell, {
     onClose: () => setModal(null)
   }, modal === "char" && /*#__PURE__*/React.createElement(CharModal, {
@@ -2967,9 +3575,7 @@ function App() {
         setUnlockModal(null);
         setUnlockPass("");
         setUnlockErr("");
-      } else {
-        setUnlockErr("Incorrect passphrase.");
-      }
+      } else setUnlockErr("Incorrect passphrase.");
     }
   })), addResFor && /*#__PURE__*/React.createElement(ModalShell, {
     onClose: () => {
@@ -2978,7 +3584,7 @@ function App() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "mtitle"
-  }, /*#__PURE__*/React.createElement("span", null, "\u2726 Add Resource \u2014 ", ((_groups$find = groups.find(g => g.id === addResFor)) === null || _groups$find === void 0 ? void 0 : _groups$find.source_name) || ""), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u2726 Add Resource \u2014 ", groups.find(g => g.id === addResFor)?.source_name || ""), /*#__PURE__*/React.createElement("button", {
     className: "btn bx bi",
     onClick: () => {
       setAddResFor(null);
@@ -2994,7 +3600,8 @@ function App() {
     className: "fi",
     placeholder: "Legendary Actions, Spell Slots...",
     value: resForm.name || "",
-    onChange: e => setResForm(f => _objectSpread(_objectSpread({}, f), {}, {
+    onChange: e => setResForm(f => ({
+      ...f,
       name: e.target.value
     }))
   }))), /*#__PURE__*/React.createElement("div", {
@@ -3010,7 +3617,8 @@ function App() {
     max: "20",
     placeholder: "3",
     value: resForm.max || "",
-    onChange: e => setResForm(f => _objectSpread(_objectSpread({}, f), {}, {
+    onChange: e => setResForm(f => ({
+      ...f,
       max: e.target.value
     }))
   }))), /*#__PURE__*/React.createElement("div", {
